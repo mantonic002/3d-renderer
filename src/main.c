@@ -22,6 +22,24 @@ bool keys[SDL_NUM_SCANCODES] = { false };
 
 TTF_Font* font = NULL;
 
+int projection_matrix[3][3] = {
+    {1, 0, 0},
+    {0, 1, 0},
+    {0, 0, 0},
+};
+
+// points of a cube
+int points[8][3] = {
+    {-1, -1, 1},
+    {1, -1, 1},
+    {1, 1, 1},
+    {-1, 1, 1},
+    {-1, -1, -1},
+    {1, -1, -1},
+    {1, 1, -1},
+    {-1, 1, -1},
+};
+
 int main() {
     game_is_running = initialize_window();
 
@@ -78,8 +96,6 @@ int initialize_window(void) {
 }
 
 void setup() {
-
-
     font = TTF_OpenFont("src/font.ttf", FONT_SIZE);
     if (!font) {
         fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
@@ -137,17 +153,30 @@ void update() {
     // Update logic:
 }
 
+
 void render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    SDL_RenderDrawLine(renderer, 20, 20, 30, 40);
+    //TODO: draw edges, add rotation 
+
+    // Drawing the points
+    for (int i = 0; i < 8; i++) {
+        int projection[3];
+        int* point = points[i];
+        projection[0] = (point[0] * projection_matrix[0][0]) + (point[1] * projection_matrix[1][0]) + (point[2] * projection_matrix[2][0]);
+        projection[1] = (point[0] * projection_matrix[0][1]) + (point[1] * projection_matrix[1][1]) + (point[2] * projection_matrix[2][1]);
+        projection[2] = (point[0] * projection_matrix[0][2]) + (point[1] * projection_matrix[1][2]) + (point[2] * projection_matrix[2][2]);
+        
+        SDL_Rect rect = {WINDOW_WIDTH/2 + projection[0] * 100, WINDOW_HEIGHT/2 + projection[1] * 100, 5, 5};
+
+        SDL_RenderFillRect(renderer, &rect);
+    }
 
     SDL_Color text_color = { 255, 255, 255 }; // White color
-
-    // Render player 1 score
+    // Render text
     SDL_Surface* text_surface = TTF_RenderText_Blended(font, "SPINNING CUBE", text_color);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
     SDL_Rect text_rect = { 0,0, text_surface->w, text_surface->h };
