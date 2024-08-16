@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <math.h>
 #include "./constants.h"
 
 int initialize_window(void);
@@ -22,23 +23,39 @@ bool keys[SDL_NUM_SCANCODES] = { false };
 
 TTF_Font* font = NULL;
 
-int projection_matrix[3][3] = {
+float projection_matrix[3][3] = {
     {1, 0, 0},
     {0, 1, 0},
     {0, 0, 0},
 };
 
 // points of a cube
-int points[8][3] = {
-    {-1, -1, 1},
-    {1, -1, 1},
-    {1, 1, 1},
-    {-1, 1, 1},
-    {-1, -1, -1},
-    {1, -1, -1},
-    {1, 1, -1},
-    {-1, 1, -1},
+float points[8][3] = {
+    {-1, -1, 1}, //close bottom left    0
+    {1, -1, 1}, //close bottom right    1
+    {1, 1, 1}, //close top right        2
+    {-1, 1, 1}, //close top left        3
+    {-1, -1, -1}, //far bottom left     4
+    {1, -1, -1}, //far bottom right     5
+    {1, 1, -1}, //far top right         6
+    {-1, 1, -1}, //far top left         7
 };
+
+float projected_points[8][3] = {0};
+
+// index for storing edges
+int edges[12][2] = {
+    {0, 1}, {1, 2}, 
+    {2, 3}, {3, 0}, 
+    {4, 5}, {5, 6}, 
+    {6, 7}, {7, 4}, 
+    {0, 4}, {1, 5}, 
+    {2, 6}, {3, 7}, 
+};
+
+float angle_x = 0;
+float angle_y = 0;
+float angle_z = 0;
 
 int main() {
     game_is_running = initialize_window();
@@ -128,11 +145,14 @@ void process_input() {
         }
     }
 
-    // Update player positions based on key states
-    // if (keys[SDL_SCANCODE_S])
-    // if (keys[SDL_SCANCODE_W])
-    // if (keys[SDL_SCANCODE_DOWN])
-    // if (keys[SDL_SCANCODE_UP])
+    // Update angles based on key states
+    if (keys[SDL_SCANCODE_X])
+        angle_x += 0.02f;
+    if (keys[SDL_SCANCODE_Y])
+        angle_y += 0.02f;
+    if (keys[SDL_SCANCODE_Z])
+        angle_z += 0.02f;
+
 }
 
 
@@ -153,6 +173,11 @@ void update() {
     // Update logic:
 }
 
+void multiplyMatrixByPoint(const float matrix[3][3], const float point[3], float result[3]) {
+    result[0] = (point[0] * matrix[0][0]) + (point[1] * matrix[1][0]) + (point[2] * matrix[2][0]);
+    result[1] = (point[0] * matrix[0][1]) + (point[1] * matrix[1][1]) + (point[2] * matrix[2][1]);
+    result[2] = (point[0] * matrix[0][2]) + (point[1] * matrix[1][2]) + (point[2] * matrix[2][2]);
+}
 
 void render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -160,26 +185,70 @@ void render() {
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    //TODO: draw edges, add rotation 
+    // TODO: z buffer
+    
+    // rotation matrices
+    float rotation_matrix_z[3][3] = {
+        {cos(angle_z), -sin(angle_z), 0},
+        {sin(angle_z), cos(angle_z), 0},
+        {0, 0, 1},
+    };
 
-    // Drawing the points
+    float rotation_matrix_y[3][3] = {
+        {cos(angle_y), 0, sin(angle_y)},
+        {0, 1, 0},
+        {-sin(angle_y), 0, cos(angle_y)},
+    };
+
+    float rotation_matrix_x[3][3] = {
+        {1, 0, 0},
+        {0, cos(angle_x), -sin(angle_x)},
+        {0, sin(angle_x), cos(angle_x)},
+    };
+
+    // drawing the points
     for (int i = 0; i < 8; i++) {
-        int projection[3];
-        int* point = points[i];
-        projection[0] = (point[0] * projection_matrix[0][0]) + (point[1] * projection_matrix[1][0]) + (point[2] * projection_matrix[2][0]);
-        projection[1] = (point[0] * projection_matrix[0][1]) + (point[1] * projection_matrix[1][1]) + (point[2] * projection_matrix[2][1]);
-        projection[2] = (point[0] * projection_matrix[0][2]) + (point[1] * projection_matrix[1][2]) + (point[2] * projection_matrix[2][2]);
-        
-        SDL_Rect rect = {WINDOW_WIDTH/2 + projection[0] * 100, WINDOW_HEIGHT/2 + projection[1] * 100, 5, 5};
+        float* point = points[i];
 
-        SDL_RenderFillRect(renderer, &rect);
+        // rotation around z axis
+        float rotation_z[3];
+        multiplyMatrixByPoint(rotation_matrix_z, point, rotation_z);
+        
+        // rotation around y axis
+        float rotation_y[3];
+        multiplyMatrixByPoint(rotation_matrix_y, rotation_z, rotation_y);
+
+        // rotation around x axis
+        float rotation_x[3];
+        multiplyMatrixByPoint(rotation_matrix_x, rotation_y, rotation_x);
+
+        float projection[3];
+        multiplyMatrixByPoint(projection_matrix, rotation_x, projection);
+
+        projected_points[i][0] = projection[0];
+        projected_points[i][1] = projection[1];
+        projected_points[i][2] = projection[2];
+    }
+
+    for (int i = 0; i < 12; i++) {
+        int* edge = edges[i];
+        float* point1 = projected_points[edge[0]];
+        float* point2 = projected_points[edge[1]];
+        
+        int x1 = WINDOW_WIDTH/2 + point1[0] * 200;
+        int y1 = WINDOW_HEIGHT/2 + point1[1] * 200;
+
+        int x2 = WINDOW_WIDTH/2 + point2[0] * 200;
+        int y2 = WINDOW_HEIGHT/2 + point2[1] * 200;
+
+        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
     }
 
     SDL_Color text_color = { 255, 255, 255 }; // White color
     // Render text
-    SDL_Surface* text_surface = TTF_RenderText_Blended(font, "SPINNING CUBE", text_color);
+    SDL_Surface* text_surface = TTF_RenderText_Blended(font, "SPIN THE CUBE", text_color);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-    SDL_Rect text_rect = { 0,0, text_surface->w, text_surface->h };
+    SDL_Rect text_rect = { 180, 0, text_surface->w, text_surface->h };
     SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
     SDL_FreeSurface(text_surface);
     SDL_DestroyTexture(text_texture);
