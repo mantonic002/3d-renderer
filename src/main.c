@@ -12,6 +12,23 @@ void update(void);
 void render(void);
 void destroy_window(void);
 
+typedef struct Vec3
+{
+    float x;
+    float y;
+    float z;
+} Vec3;
+
+typedef struct Vec2
+{
+    float x;
+    float y;
+} Vec2;
+
+void draw_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c);
+void draw_flat_top_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c);
+void draw_flat_bottom_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c);
+
 bool game_is_running = false;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -24,27 +41,37 @@ bool keys[SDL_NUM_SCANCODES] = { false };
 TTF_Font* font = NULL;
 
 // points of a cube
-float points[8][3] = {
-    {-1, -1, 1}, //close bottom left    0
-    {1, -1, 1}, //close bottom right    1
-    {1, 1, 1}, //close top right        2
-    {-1, 1, 1}, //close top left        3
-    {-1, -1, -1}, //far bottom left     4
-    {1, -1, -1}, //far bottom right     5
-    {1, 1, -1}, //far top right         6
-    {-1, 1, -1}, //far top left         7
+Vec3 points[8] = {
+    {-SIZE, -SIZE, -SIZE},
+    {SIZE, -SIZE, -SIZE},
+    {-SIZE, SIZE, -SIZE},
+    {SIZE, SIZE, -SIZE},
+    {-SIZE, -SIZE, SIZE},
+    {SIZE, -SIZE, SIZE},
+    {-SIZE, SIZE, SIZE},
+    {SIZE, SIZE, SIZE},
 };
 
-float projected_points[8][3] = {0};
+Vec2 projected_points[8] = {0};
 
-// array for storing edges of the cube
+// indexed line list
 int edges[12][2] = {
-    {0, 1}, {1, 2}, 
-    {2, 3}, {3, 0}, 
-    {4, 5}, {5, 6}, 
-    {6, 7}, {7, 4}, 
+    {0, 1}, {1, 3}, 
+    {3, 2}, {2, 0}, 
     {0, 4}, {1, 5}, 
-    {2, 6}, {3, 7}, 
+    {3, 7}, {2, 6}, 
+    {4, 5}, {5, 7}, 
+    {7, 6}, {6, 4}, 
+};
+
+// indexed triangle list
+int indices[12][3] = {
+    {0, 2, 1}, {2, 3, 1},
+    {1, 3, 5}, {3, 7, 5},
+    {2, 6, 3}, {3, 6, 7},
+    {4, 7, 5}, {4, 7, 6},
+    {0, 4, 2}, {2, 4, 6},
+    {0, 1, 4}, {1, 5, 4},
 };
 
 float angle_x = 0;
@@ -57,7 +84,7 @@ int main() {
     game_is_running = initialize_window();
 
     setup();
-    
+
     while (game_is_running) {
         process_input();
         update();
@@ -184,10 +211,10 @@ void update() {
         angle_z = 0;
 }
 
-void multiplyMatrixByPoint(const float matrix[3][3], const float point[3], float result[3]) {
-    result[0] = (point[0] * matrix[0][0]) + (point[1] * matrix[1][0]) + (point[2] * matrix[2][0]);
-    result[1] = (point[0] * matrix[0][1]) + (point[1] * matrix[1][1]) + (point[2] * matrix[2][1]);
-    result[2] = (point[0] * matrix[0][2]) + (point[1] * matrix[1][2]) + (point[2] * matrix[2][2]);
+void multiplyMatrixByPoint(const float matrix[3][3], const Vec3* point, Vec3* result) {
+    result->x = (point->x * matrix[0][0]) + (point->y * matrix[1][0]) + (point->z * matrix[2][0]);
+    result->y = (point->x * matrix[0][1]) + (point->y * matrix[1][1]) + (point->z * matrix[2][1]);
+    result->z = (point->x * matrix[0][2]) + (point->y * matrix[1][2]) + (point->z * matrix[2][2]);
 }
 
 void render() {
@@ -223,50 +250,73 @@ void render() {
 
     // rotate and make a projection of each point
     for (int i = 0; i < 8; i++) {
-        float* point = points[i];
+        Vec3 point = points[i];
 
         // rotation around z axis
-        float rotation_z[3];
-        multiplyMatrixByPoint(rotation_matrix_z, point, rotation_z);
+        Vec3 rotation_z;
+        multiplyMatrixByPoint(rotation_matrix_z, &point, &rotation_z);
         
         // rotation around y axis
-        float rotation_y[3];
-        multiplyMatrixByPoint(rotation_matrix_y, rotation_z, rotation_y);
+        Vec3 rotation_y;
+        multiplyMatrixByPoint(rotation_matrix_y, &rotation_z, &rotation_y);
 
         // rotation around x axis
-        float rotation_x[3];
-        multiplyMatrixByPoint(rotation_matrix_x, rotation_y, rotation_x);
+        Vec3 rotation_x;
+        multiplyMatrixByPoint(rotation_matrix_x, &rotation_y, &rotation_x);
 
         // move cube away from the screen by z_offset
-        rotation_x[2] += z_offset;
+        rotation_x.z += z_offset;
         
         // divide x and y with z to add perspective 
-        float zInv = 1.0f / rotation_x[2];
-        rotation_x[0] = rotation_x[0]*zInv;
-        rotation_x[1] = -rotation_x[1]*zInv;
+        float zInv = 1.0f / rotation_x.z;
+        rotation_x.x = rotation_x.x*zInv;
+        rotation_x.y = -rotation_x.y*zInv;
 
-        float projection[3];
-        multiplyMatrixByPoint(projection_matrix, rotation_x, projection);
+        Vec3 projection;
+        multiplyMatrixByPoint(projection_matrix, &rotation_x, &projection);
 
-        projected_points[i][0] = projection[0];
-        projected_points[i][1] = projection[1];
-        projected_points[i][2] = projection[2];
+        projected_points[i].x = WINDOW_WIDTH/2 + projection.x * SCALE;
+        projected_points[i].y = WINDOW_HEIGHT/2 + projection.y * SCALE;
     }
 
+    bool wireframe = false;;
     // draw lines based on the edges and points arrays
-    for (int i = 0; i < 12; i++) {
-        int* edge = edges[i];
-        float* point1 = projected_points[edge[0]];
-        float* point2 = projected_points[edge[1]];
-        
-        int x1 = WINDOW_WIDTH/2 + point1[0] * SCALE;
-        int y1 = WINDOW_HEIGHT/2 + point1[1] * SCALE;
+    if (wireframe) {
+        for (int i = 0; i < 12; i++) {
+            int* edge = edges[i];
+            Vec2 p1 = projected_points[edge[0]];
+            Vec2 p2 = projected_points[edge[1]];
 
-        int x2 = WINDOW_WIDTH/2 + point2[0] * SCALE;
-        int y2 = WINDOW_HEIGHT/2 + point2[1] * SCALE;
-
-        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+            SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
+        }
     }
+    else {
+        SDL_Color colors[12] = {
+           { 255, 255, 255, 255 },
+           { 0, 255, 255, 255 },
+           { 255, 0, 255, 255 },
+           { 255, 255, 0, 255 },
+           { 125, 125, 125, 255 },
+           { 255, 0, 0, 255 },
+           { 0, 0, 255, 255 },
+           { 100, 25, 124, 255 },
+           { 124, 124, 0, 255 },
+           { 255, 0, 255, 255 },
+           { 0, 124, 124, 255 },
+           { 255, 255, 255, 125 },
+        };
+        
+        for (int i = 0; i < 12; i++) {
+            int* index = indices[i];
+            Vec2 v1 = projected_points[index[0]];
+            Vec2 v2 = projected_points[index[1]];
+            Vec2 v3 = projected_points[index[2]];
+            
+
+            draw_triangle(&v1, &v2, &v3, colors[i]);
+        }
+    }
+
 
     SDL_Color text_color = { 255, 255, 255 }; // White color
     // Render text
@@ -281,8 +331,110 @@ void render() {
     SDL_RenderPresent(renderer);
 }
 
+// helper func for swapping pointers
+void ptr_swap(Vec2* p1, Vec2* p2) {
+    Vec2 temp = *p1;
+    *p1 = *p2;
+    *p2 = temp;
+}
+
+void draw_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
+    // sort vertices by y (height)
+    if (v2->y < v1->y) 
+        ptr_swap(v1, v2);
+    if (v3->y < v2->y) 
+        ptr_swap(v2, v3);
+    if (v2->y < v1->y) 
+        ptr_swap(v1, v2);
+
+    if (v1->y == v2->y) { // natural flat top
+        if (v2->x < v1->x) // sort top vertices by x
+            ptr_swap(v1, v2);
+        draw_flat_top_triangle(v1, v2, v3, c);
+    }
+    else if (v2->y == v3->y) { // natural flat bottom
+        if (v3->x < v2->x) // sort bottom vertices by x
+            ptr_swap(v2, v3);
+        draw_flat_bottom_triangle(v1, v2, v3, c);
+    }
+    else { // general case - has to be split into 1 flat top and 1 flat bottom
+        // find a splitting vertex
+        float split = (v2->y - v1->y) / (v3->y - v1->y);
+        Vec2 vi;
+        vi.x =  v1->x + (v3->x - v1->x) * split;
+        vi.y =  v1->y + (v3->y - v1->y) * split;
+
+        if (v2->x < vi.x) { // major right
+            draw_flat_bottom_triangle(v1, v2, &vi, c);
+            draw_flat_top_triangle(v2, &vi, v3, c);
+        }
+        else { // major left
+            draw_flat_bottom_triangle(v1, &vi, v2, c);
+            draw_flat_top_triangle(&vi, v2, v3, c);
+        }
+    }
+}
+
+void draw_flat_top_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
+    // calculate slopes (inverse because Xs could be the same if it was horizontal, which would cause devision by 0)
+    float m1 = (v3->x - v1->x) / (v3->y - v1->y);
+    float m2 = (v3->x - v2->x) / (v3->y - v2->y);
+
+    // TOP part of the top-left rule
+    // start and end scanlines
+    int yStart = (int)ceil( v1->y - 0.5f);
+    int yEnd = (int)ceil( v3->y - 0.5f); // not drawn
+
+    for (int y = yStart; y < yEnd; y++) {
+        // calc Xs for start and end points
+        // add 0.5 because it's calculater from pixel centers
+        float x1 = m1 * ((float)y + 0.5f - v1->y) + v1->x;
+        float x2 = m2 * ((float)y + 0.5f - v2->y) + v2->x;
+
+        // LEFT part of the top-left rule
+        // calc start and end pixels
+        int xStart = (int)ceil(x1 - 0.5f);
+        int xEnd = (int)ceil(x2 - 0.5f); // not drawn
+
+        for (int x = xStart; x < xEnd; x++) {
+            SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+    }
+}
+
+void draw_flat_bottom_triangle  (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
+    // calculate slopes (inverse because Xs could be the same if it was horizontal, which would cause devision by 0)
+    float m1 = (v2->x - v1->x) / (v2->y - v1->y);
+    float m2 = (v3->x - v1->x) / (v3->y - v1->y);
+
+    // TOP part of the top-left rule
+    // start and end scanlines
+    int yStart = (int)ceil( v1->y - 0.5f);
+    int yEnd = (int)ceil( v3->y - 0.5f); // not drawn
+
+    for (int y = yStart; y < yEnd; y++) {
+        // calc Xs for start and end points
+        // add 0.5 because it's calculater from pixel centers
+        float x1 = m1 * ((float)y + 0.5f - v1->y) + v1->x;
+        float x2 = m2 * ((float)y + 0.5f - v1->y) + v1->x;
+
+        // LEFT part of the top-left rule
+        // calc start and end pixels
+        int xStart = (int)ceil(x1 - 0.5f);
+        int xEnd = (int)ceil(x2 - 0.5f); // not drawn
+
+        for (int x = xStart; x < xEnd; x++) {
+            SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+    }
+}
+
 void destroy_window() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+//     printf("X--v1: %f, v2: %f, v3: %f\n", v1->x, v2->x, v3->x);
+// printf("Y--v1: %f, v2: %f, v3: %f\n", v1->y, v2->y, v3->y);
