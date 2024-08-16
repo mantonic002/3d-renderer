@@ -7,3 +7,5 @@
 #define FRAME_TARGET_TIME (1000 / FPS)
 
 #define FONT_SIZE 100
+
+#define SCALE 300

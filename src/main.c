@@ -23,12 +23,6 @@ bool keys[SDL_NUM_SCANCODES] = { false };
 
 TTF_Font* font = NULL;
 
-float projection_matrix[3][3] = {
-    {1, 0, 0},
-    {0, 1, 0},
-    {0, 0, 0},
-};
-
 // points of a cube
 float points[8][3] = {
     {-1, -1, 1}, //close bottom left    0
@@ -43,7 +37,7 @@ float points[8][3] = {
 
 float projected_points[8][3] = {0};
 
-// index for storing edges
+// array for storing edges of the cube
 int edges[12][2] = {
     {0, 1}, {1, 2}, 
     {2, 3}, {3, 0}, 
@@ -56,6 +50,8 @@ int edges[12][2] = {
 float angle_x = 0;
 float angle_y = 0;
 float angle_z = 0;
+
+float z_offset = 3;
 
 int main() {
     game_is_running = initialize_window();
@@ -153,12 +149,21 @@ void process_input() {
     if (keys[SDL_SCANCODE_Z])
         angle_z += 0.02f;
 
+    // move the cube closer or further away with arrow keys
+    if (keys[SDL_SCANCODE_UP] && z_offset >= 2 && z_offset < 19.9f)
+    {
+        z_offset += 0.05f;
+    }
+
+    if (keys[SDL_SCANCODE_DOWN] && z_offset > 2.1f && z_offset <= 20)
+    {
+        z_offset -= 0.05f;
+    }
+
 }
 
-
-
 void update() {
-    // Better way is to use proper delay function
+    // delaying to keep the constant frame rate
     int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
     
     if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
@@ -170,7 +175,13 @@ void update() {
 
     last_frame_time = SDL_GetTicks();
 
-    // Update logic:
+    //check if rotation angles are more than 2pi and return them to zero if they are
+    if (angle_x >= 2*PI)
+        angle_x = 0;
+    if (angle_y >= 2*PI)
+        angle_y = 0;
+    if (angle_z >= 2*PI)
+        angle_z = 0;
 }
 
 void multiplyMatrixByPoint(const float matrix[3][3], const float point[3], float result[3]) {
@@ -185,8 +196,12 @@ void render() {
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    // TODO: z buffer
-    
+    float projection_matrix[3][3] = {
+        {1, 0, 0},
+        {0, 1, 0},
+        {0, 0, 1},
+    };
+
     // rotation matrices
     float rotation_matrix_z[3][3] = {
         {cos(angle_z), -sin(angle_z), 0},
@@ -206,7 +221,7 @@ void render() {
         {0, sin(angle_x), cos(angle_x)},
     };
 
-    // drawing the points
+    // rotate and make a projection of each point
     for (int i = 0; i < 8; i++) {
         float* point = points[i];
 
@@ -222,6 +237,14 @@ void render() {
         float rotation_x[3];
         multiplyMatrixByPoint(rotation_matrix_x, rotation_y, rotation_x);
 
+        // move cube away from the screen by z_offset
+        rotation_x[2] += z_offset;
+        
+        // divide x and y with z to add perspective 
+        float zInv = 1.0f / rotation_x[2];
+        rotation_x[0] = rotation_x[0]*zInv;
+        rotation_x[1] = -rotation_x[1]*zInv;
+
         float projection[3];
         multiplyMatrixByPoint(projection_matrix, rotation_x, projection);
 
@@ -230,16 +253,17 @@ void render() {
         projected_points[i][2] = projection[2];
     }
 
+    // draw lines based on the edges and points arrays
     for (int i = 0; i < 12; i++) {
         int* edge = edges[i];
         float* point1 = projected_points[edge[0]];
         float* point2 = projected_points[edge[1]];
         
-        int x1 = WINDOW_WIDTH/2 + point1[0] * 200;
-        int y1 = WINDOW_HEIGHT/2 + point1[1] * 200;
+        int x1 = WINDOW_WIDTH/2 + point1[0] * SCALE;
+        int y1 = WINDOW_HEIGHT/2 + point1[1] * SCALE;
 
-        int x2 = WINDOW_WIDTH/2 + point2[0] * 200;
-        int y2 = WINDOW_HEIGHT/2 + point2[1] * 200;
+        int x2 = WINDOW_WIDTH/2 + point2[0] * SCALE;
+        int y2 = WINDOW_HEIGHT/2 + point2[1] * SCALE;
 
         SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
     }
