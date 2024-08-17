@@ -11,6 +11,7 @@ void process_input(void);
 void update(void);
 void render(void);
 void destroy_window(void);
+void restart_cube(void);
 
 typedef struct Vec3
 {
@@ -18,6 +19,9 @@ typedef struct Vec3
     float y;
     float z;
 } Vec3;
+Vec3 cross_product (const Vec3* v1, const Vec3* v2);
+float dot_product (const Vec3* v1, const Vec3* v2);
+Vec3 vec3_subtract (const Vec3* v1, const Vec3* v2);
 
 typedef struct Vec2
 {
@@ -39,6 +43,8 @@ float delta_time = 0.0f;
 bool keys[SDL_NUM_SCANCODES] = { false };
 
 TTF_Font* font = NULL;
+
+bool wireframe = false;
 
 // points of a cube
 Vec3 points[8] = {
@@ -69,10 +75,13 @@ int indices[12][3] = {
     {0, 2, 1}, {2, 3, 1},
     {1, 3, 5}, {3, 7, 5},
     {2, 6, 3}, {3, 6, 7},
-    {4, 7, 5}, {4, 7, 6},
+    {7, 4, 5}, {4, 7, 6},
     {0, 4, 2}, {2, 4, 6},
     {0, 1, 4}, {1, 5, 4},
 };
+
+// cull flag for each triangle to check if it's being drawn
+bool cullFlags[12] = {false};
 
 float angle_x = 0;
 float angle_y = 0;
@@ -160,6 +169,9 @@ void process_input() {
             break;
 
         case SDL_KEYUP:
+            if (event.key.keysym.scancode == SDL_SCANCODE_W)
+                wireframe = !wireframe;
+
             keys[event.key.keysym.scancode] = false;
             break;
 
@@ -179,12 +191,12 @@ void process_input() {
     // move the cube closer or further away with arrow keys
     if (keys[SDL_SCANCODE_UP] && z_offset >= 2 && z_offset < 19.9f)
     {
-        z_offset += 0.05f;
+        z_offset += 0.5f;
     }
 
     if (keys[SDL_SCANCODE_DOWN] && z_offset > 2.1f && z_offset <= 20)
     {
-        z_offset -= 0.05f;
+        z_offset -= 0.5f;
     }
 
 }
@@ -248,6 +260,9 @@ void render() {
         {0, sin(angle_x), cos(angle_x)},
     };
 
+    float zInv;
+
+    //TODO: Everything in this loops keeps repeating for some reason
     // rotate and make a projection of each point
     for (int i = 0; i < 8; i++) {
         Vec3 point = points[i];
@@ -266,20 +281,41 @@ void render() {
 
         // move cube away from the screen by z_offset
         rotation_x.z += z_offset;
-        
-        // divide x and y with z to add perspective 
-        float zInv = 1.0f / rotation_x.z;
-        rotation_x.x = rotation_x.x*zInv;
-        rotation_x.y = -rotation_x.y*zInv;
 
-        Vec3 projection;
-        multiplyMatrixByPoint(projection_matrix, &rotation_x, &projection);
-
-        projected_points[i].x = WINDOW_WIDTH/2 + projection.x * SCALE;
-        projected_points[i].y = WINDOW_HEIGHT/2 + projection.y * SCALE;
+        points[i] = rotation_x;
     }
 
-    bool wireframe = false;;
+    // backface culling
+    for (int i = 0; i < 12; i++) {
+        Vec3 v1 = points[indices[i][0]];
+        Vec3 v2 = points[indices[i][1]];
+        Vec3 v3 = points[indices[i][2]];
+
+        Vec3 v2_sub_v1 = vec3_subtract(&v2, &v1);
+        Vec3 v3_sub_v1 = vec3_subtract(&v3, &v1);
+        Vec3 n = cross_product(&v2_sub_v1, &v3_sub_v1);
+        cullFlags[i] =  dot_product(&n, &v1) > 0.0f;
+    }
+
+    // projection
+    for (int i = 0; i < 8; i++) {
+        Vec3 curr = points[i];
+        
+        zInv = 1.0f / curr.z;
+        curr.x = curr.x*zInv;
+        curr.y = -curr.y*zInv;
+
+        Vec3 projection;
+        multiplyMatrixByPoint(projection_matrix, &curr, &projection);
+
+        projected_points[i].x = WINDOW_WIDTH/2 + curr.x * SCALE;
+        projected_points[i].y = WINDOW_HEIGHT/2 + curr.y * SCALE;
+
+        printf("points: %f, %f\n", projected_points[i].x, projected_points[i].y);
+    }
+
+    restart_cube();
+
     // draw lines based on the edges and points arrays
     if (wireframe) {
         for (int i = 0; i < 12; i++) {
@@ -292,28 +328,30 @@ void render() {
     }
     else {
         SDL_Color colors[12] = {
-           { 255, 255, 255, 255 },
-           { 0, 255, 255, 255 },
-           { 255, 0, 255, 255 },
-           { 255, 255, 0, 255 },
-           { 125, 125, 125, 255 },
-           { 255, 0, 0, 255 },
-           { 0, 0, 255, 255 },
-           { 100, 25, 124, 255 },
-           { 124, 124, 0, 255 },
-           { 255, 0, 255, 255 },
-           { 0, 124, 124, 255 },
-           { 255, 255, 255, 125 },
+            { 125, 125, 125, 255 },
+            { 255, 0, 0, 255 },
+            { 0, 0, 255, 255 },
+            { 100, 25, 124, 255 },
+            { 255, 255, 255, 255 },
+            { 0, 255, 255, 255 },
+            { 255, 15, 0, 100 },
+            { 255, 255, 0, 255 },
+            { 124, 124, 0, 255 },
+            { 255, 2, 255, 255 },
+            { 0, 124, 124, 255 },
+            { 255, 255, 255, 125 },
         };
-        
-        for (int i = 0; i < 12; i++) {
-            int* index = indices[i];
-            Vec2 v1 = projected_points[index[0]];
-            Vec2 v2 = projected_points[index[1]];
-            Vec2 v3 = projected_points[index[2]];
-            
 
-            draw_triangle(&v1, &v2, &v3, colors[i]);
+        // draw trianlges
+        for (int i = 0; i < 12; i++) {
+            if (!cullFlags[i]) {                
+                int* index = indices[i];
+                Vec2 v1 = projected_points[index[0]];
+                Vec2 v2 = projected_points[index[1]];
+                Vec2 v3 = projected_points[index[2]];
+
+                draw_triangle(&v1, &v2, &v3, colors[i]);
+            }
         }
     }
 
@@ -431,10 +469,42 @@ void draw_flat_bottom_triangle  (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
     }
 }
 
+Vec3 cross_product (const Vec3* v1, const Vec3* v2) {
+    Vec3 result = { 
+        (v1->y * v2->z) - (v1->z * v2->y), 
+        (v1->z * v2->x) - (v1->x * v2->z), 
+        (v1->x * v2->y) - (v1->y * v2->x), 
+    };
+    return result;
+}
+
+float dot_product (const Vec3* v1, const Vec3* v2) {
+    float result = v1->x * v2->x + v1->y * v2->y + v1->z * v2->z; 
+    return result;
+}
+
+Vec3 vec3_subtract (const Vec3* v1, const Vec3* v2) {
+    Vec3 result = { 
+        v1->x - v2->x,
+        v1->y - v2->y,
+        v1->z - v2->z,
+    };
+    return result;
+}
+
+void restart_cube() {
+    points[0].x = -SIZE; points[0].y = -SIZE; points[0].z = -SIZE;
+    points[1].x = SIZE;  points[1].y = -SIZE; points[1].z = -SIZE;
+    points[2].x = -SIZE; points[2].y = SIZE;  points[2].z = -SIZE;
+    points[3].x = SIZE;  points[3].y = SIZE;  points[3].z = -SIZE;
+    points[4].x = -SIZE; points[4].y = -SIZE; points[4].z = SIZE;
+    points[5].x = SIZE;  points[5].y = -SIZE; points[5].z = SIZE;
+    points[6].x = -SIZE; points[6].y = SIZE;  points[6].z = SIZE;
+    points[7].x = SIZE;  points[7].y = SIZE;  points[7].z = SIZE;
+}
+
 void destroy_window() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
-//     printf("X--v1: %f, v2: %f, v3: %f\n", v1->x, v2->x, v3->x);
-// printf("Y--v1: %f, v2: %f, v3: %f\n", v1->y, v2->y, v3->y);
