@@ -587,6 +587,8 @@ void draw_flat_top_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SD
     const float tex_clamp_x = tex_width - 1.0f;
     const float tex_clamp_y = tex_height - 1.0f;
 
+    Uint8 r, g, b, a;
+
     for (int y = yStart; y < yEnd; y++,
             tcEdgeL = vec2_add(&tcEdgeL, &tcEdgeStepL),
             tcEdgeR = vec2_add(&tcEdgeR, &tcEdgeStepR)) 
@@ -605,16 +607,14 @@ void draw_flat_top_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SD
         Vec2 temp = vec2_subtract(&tcEdgeR, &tcEdgeL);
         const Vec2 tcScanStep = vec2_divide(&temp, (x2 - x1));
 
-        temp = vec2_add(&tcEdgeL, &tcScanStep);
-        Vec2 tc = vec2_multiply(&temp, ((float)xStart + 0.5f - x1));
+        temp = vec2_multiply(&tcScanStep, ((float)xStart + 0.5f - x1));
+        Vec2 tc = vec2_add(&tcEdgeL, &temp);
 
         for (int x = xStart; x < xEnd; x++, tc = vec2_add(&tc, &tcScanStep)) {
-            Uint8 r, g, b, a;
             get_pixel_rgba( s, 
                             fmin(tc.x * tex_width, tex_clamp_x),
                             fmin(tc.y * tex_height, tex_clamp_y),
                             &r, &g, &b, &a);
-
             SDL_SetRenderDrawColor(renderer, r, g, b, a);
             SDL_RenderDrawPoint(renderer, x, y);
         }
@@ -703,8 +703,8 @@ void draw_flat_bottom_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3,
         Vec2 temp = vec2_subtract(&tcEdgeR, &tcEdgeL);
         const Vec2 tcScanStep = vec2_divide(&temp, (x2 - x1));
 
-        temp = vec2_add(&tcEdgeL, &tcScanStep);
-        Vec2 tc = vec2_multiply(&temp, ((float)xStart + 0.5f - x1));
+        temp = vec2_multiply(&tcScanStep, ((float)xStart + 0.5f - x1));
+        Vec2 tc = vec2_add(&tcEdgeL, &temp);
 
         for (int x = xStart; x < xEnd; x++, tc = vec2_add(&tc, &tcScanStep)) {
             Uint8 r, g, b, a;
