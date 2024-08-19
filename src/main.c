@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <math.h>
 #include "./constants.h"
 
@@ -13,6 +14,10 @@ void render(void);
 void destroy_window(void);
 void restart_cube(void);
 
+
+Uint32 get_pixel(SDL_Surface *surface, int x, int y);
+void get_pixel_rgba(SDL_Surface *surface, int x, int y, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a);
+
 typedef struct Vec3
 {
     float x;
@@ -22,6 +27,7 @@ typedef struct Vec3
 Vec3 cross_product (const Vec3* v1, const Vec3* v2);
 float dot_product (const Vec3* v1, const Vec3* v2);
 Vec3 vec3_subtract (const Vec3* v1, const Vec3* v2);
+Vec3 vec3_interpolate (const Vec3* v1, const Vec3* v2, const float alpha);
 
 typedef struct Vec2
 {
@@ -29,9 +35,29 @@ typedef struct Vec2
     float y;
 } Vec2;
 
+Vec2 vec2_interpolate (const Vec2* v1, const Vec2* v2, const float alpha);
+Vec2 vec2_subtract (const Vec2* v1, const Vec2* v2);
+Vec2 vec2_add (const Vec2* v1, const Vec2* v2);
+Vec2 vec2_divide (const Vec2* v, float scalar);
+Vec2 vec2_multiply (const Vec2* v, float scalar);
+
+
+
 void draw_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c);
 void draw_flat_top_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c);
 void draw_flat_bottom_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c);
+
+typedef struct TexVertex
+{
+    Vec2 pos; // position
+    Vec2 tc; // texture coordinate
+} TexVertex;
+
+TexVertex tex_vertex_interpolate (const TexVertex* v1, const TexVertex* v2, const float alpha);
+
+void draw_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s);
+void draw_flat_top_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s);
+void draw_flat_bottom_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s);
 
 bool game_is_running = false;
 SDL_Window* window = NULL;
@@ -43,22 +69,33 @@ float delta_time = 0.0f;
 bool keys[SDL_NUM_SCANCODES] = { false };
 
 TTF_Font* font = NULL;
+SDL_Surface* textureFromPng = NULL;
 
 bool wireframe = false;
+bool textured = false;
 
-// points of a cube
-Vec3 points[8] = {
+// vertices of a cube
+Vec3 vertices[8] = {
     {-SIZE, -SIZE, -SIZE},
     {SIZE, -SIZE, -SIZE},
     {-SIZE, SIZE, -SIZE},
-    {SIZE, SIZE, -SIZE},
+    {SIZE, SIZE, -SIZE}, 
     {-SIZE, -SIZE, SIZE},
-    {SIZE, -SIZE, SIZE},
-    {-SIZE, SIZE, SIZE},
-    {SIZE, SIZE, SIZE},
+    {SIZE, -SIZE, SIZE}, 
+    {-SIZE, SIZE, SIZE}, 
+    {SIZE, SIZE, SIZE},  
 };
 
-Vec2 projected_points[8] = {0};
+TexVertex projected_points[8] = {
+    {{-SIZE, -SIZE}, {0.0f, 1.0f}},
+    {{SIZE, -SIZE},  {1.0f, 1.0f}},
+    {{-SIZE, SIZE},  {0.0f, 0.0f}},
+    {{SIZE, SIZE},   {1.0f, 0.0f}},
+    {{-SIZE, -SIZE},  {1.0f, 1.0f}},
+    {{SIZE, -SIZE},   {0.0f, 1.0f}},
+    {{-SIZE, SIZE},   {1.0f, 0.0f}},
+    {{SIZE, SIZE},    {0.0f, 0.0f}},
+};
 
 // indexed line list
 int edges[12][2] = {
@@ -79,6 +116,11 @@ int indices[12][3] = {
     {0, 4, 2}, {2, 4, 6},
     {0, 1, 4}, {1, 5, 4},
 };
+
+// TexVertex tex_indices[12] = {
+
+
+// };
 
 // cull flag for each triangle to check if it's being drawn
 bool cullFlags[12] = {false};
@@ -118,6 +160,11 @@ int initialize_window(void) {
         return 1;
     }
 
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        fprintf(stderr, "Error initializing SDL_image.\n");
+        return false;
+    }
+
     window = SDL_CreateWindow(
         NULL,
         SDL_WINDOWPOS_CENTERED,
@@ -150,6 +197,12 @@ void setup() {
         fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
         destroy_window();
     }
+
+    textureFromPng = IMG_Load("src/texture.png");
+    if (!textureFromPng) {
+        fprintf(stderr, "Unable to load image! SDL_Error: %s\n", SDL_GetError());
+        destroy_window();
+    }
 }
 
 void process_input() {
@@ -169,8 +222,14 @@ void process_input() {
             break;
 
         case SDL_KEYUP:
-            if (event.key.keysym.scancode == SDL_SCANCODE_W)
+            if (event.key.keysym.scancode == SDL_SCANCODE_W) {
                 wireframe = !wireframe;
+                textured = false;
+            }
+            if (event.key.keysym.scancode == SDL_SCANCODE_T) {
+                textured = !textured;
+                wireframe = false;
+            }
 
             keys[event.key.keysym.scancode] = false;
             break;
@@ -265,7 +324,7 @@ void render() {
     //TODO: Everything in this loops keeps repeating for some reason
     // rotate and make a projection of each point
     for (int i = 0; i < 8; i++) {
-        Vec3 point = points[i];
+        Vec3 point = vertices[i];
 
         // rotation around z axis
         Vec3 rotation_z;
@@ -282,14 +341,14 @@ void render() {
         // move cube away from the screen by z_offset
         rotation_x.z += z_offset;
 
-        points[i] = rotation_x;
+        vertices[i] = rotation_x;
     }
 
     // backface culling
     for (int i = 0; i < 12; i++) {
-        Vec3 v1 = points[indices[i][0]];
-        Vec3 v2 = points[indices[i][1]];
-        Vec3 v3 = points[indices[i][2]];
+        Vec3 v1 = vertices[indices[i][0]];
+        Vec3 v2 = vertices[indices[i][1]];
+        Vec3 v3 = vertices[indices[i][2]];
 
         Vec3 v2_sub_v1 = vec3_subtract(&v2, &v1);
         Vec3 v3_sub_v1 = vec3_subtract(&v3, &v1);
@@ -299,7 +358,7 @@ void render() {
 
     // projection
     for (int i = 0; i < 8; i++) {
-        Vec3 curr = points[i];
+        Vec3 curr = vertices[i];
         
         zInv = 1.0f / curr.z;
         curr.x = curr.x*zInv;
@@ -308,22 +367,32 @@ void render() {
         Vec3 projection;
         multiplyMatrixByPoint(projection_matrix, &curr, &projection);
 
-        projected_points[i].x = WINDOW_WIDTH/2 + curr.x * SCALE;
-        projected_points[i].y = WINDOW_HEIGHT/2 + curr.y * SCALE;
-
-        printf("points: %f, %f\n", projected_points[i].x, projected_points[i].y);
+        projected_points[i].pos.x = WINDOW_WIDTH/2 + curr.x * SCALE;
+        projected_points[i].pos.y = WINDOW_HEIGHT/2 + curr.y * SCALE;
     }
 
     restart_cube();
 
-    // draw lines based on the edges and points arrays
+    // draw lines based on the edges and vertices arrays
     if (wireframe) {
         for (int i = 0; i < 12; i++) {
             int* edge = edges[i];
-            Vec2 p1 = projected_points[edge[0]];
-            Vec2 p2 = projected_points[edge[1]];
+            Vec2 p1 = projected_points[edge[0]].pos;
+            Vec2 p2 = projected_points[edge[1]].pos;
 
             SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
+        }
+    }
+    else if (textured) {
+        for (int i = 0; i < 12; i++) {
+            if (!cullFlags[i]) {                
+                int* index = indices[i];
+                TexVertex tv1 = projected_points[index[0]];
+                TexVertex tv2 = projected_points[index[1]];
+                TexVertex tv3 = projected_points[index[2]];
+
+                draw_triangle_tex(&tv1, &tv2, &tv3, textureFromPng);
+            }
         }
     }
     else {
@@ -342,13 +411,13 @@ void render() {
             { 255, 255, 255, 125 },
         };
 
-        // draw trianlges
+        // draw triangles
         for (int i = 0; i < 12; i++) {
             if (!cullFlags[i]) {                
                 int* index = indices[i];
-                Vec2 v1 = projected_points[index[0]];
-                Vec2 v2 = projected_points[index[1]];
-                Vec2 v3 = projected_points[index[2]];
+                Vec2 v1 = projected_points[index[0]].pos;
+                Vec2 v2 = projected_points[index[1]].pos;
+                Vec2 v3 = projected_points[index[2]].pos;
 
                 draw_triangle(&v1, &v2, &v3, colors[i]);
             }
@@ -370,37 +439,43 @@ void render() {
 }
 
 // helper func for swapping pointers
-void ptr_swap(Vec2* p1, Vec2* p2) {
-    Vec2 temp = *p1;
-    *p1 = *p2;
-    *p2 = temp;
+void ptr_swap(void* p1, void* p2, size_t size) {
+    void* temp = malloc(size);
+    if (temp == NULL) {
+        return;
+    }
+    
+    memcpy(temp, p1, size);
+    memcpy(p1, p2, size);  
+    memcpy(p2, temp, size);
+    
+    free(temp);
 }
 
 void draw_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
     // sort vertices by y (height)
     if (v2->y < v1->y) 
-        ptr_swap(v1, v2);
+        ptr_swap(v1, v2, sizeof(Vec2));
     if (v3->y < v2->y) 
-        ptr_swap(v2, v3);
+        ptr_swap(v2, v3, sizeof(Vec2));
     if (v2->y < v1->y) 
-        ptr_swap(v1, v2);
+        ptr_swap(v1, v2, sizeof(Vec2));
 
     if (v1->y == v2->y) { // natural flat top
         if (v2->x < v1->x) // sort top vertices by x
-            ptr_swap(v1, v2);
+            ptr_swap(v1, v2, sizeof(Vec2));
         draw_flat_top_triangle(v1, v2, v3, c);
     }
     else if (v2->y == v3->y) { // natural flat bottom
         if (v3->x < v2->x) // sort bottom vertices by x
-            ptr_swap(v2, v3);
+            ptr_swap(v2, v3, sizeof(Vec2));
         draw_flat_bottom_triangle(v1, v2, v3, c);
     }
     else { // general case - has to be split into 1 flat top and 1 flat bottom
-        // find a splitting vertex
-        float split = (v2->y - v1->y) / (v3->y - v1->y);
-        Vec2 vi;
-        vi.x =  v1->x + (v3->x - v1->x) * split;
-        vi.y =  v1->y + (v3->y - v1->y) * split;
+        // find a splitting vertex y
+        float alpha = (v2->y - v1->y) / (v3->y - v1->y);
+        // Interpolate to find the point between v3 and v1
+        Vec2 vi = vec2_interpolate(v1, v3, alpha);
 
         if (v2->x < vi.x) { // major right
             draw_flat_bottom_triangle(v1, v2, &vi, c);
@@ -409,6 +484,42 @@ void draw_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
         else { // major left
             draw_flat_bottom_triangle(v1, &vi, v2, c);
             draw_flat_top_triangle(&vi, v2, v3, c);
+        }
+    }
+}
+
+void draw_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s) {
+    // sort vertices by y (height)
+    if (v2->pos.y < v1->pos.y) 
+        ptr_swap(v1, v2, sizeof(TexVertex));
+    if (v3->pos.y < v2->pos.y) 
+        ptr_swap(v2, v3, sizeof(TexVertex));
+    if (v2->pos.y < v1->pos.y) 
+        ptr_swap(v1, v2, sizeof(TexVertex));
+
+    if (v1->pos.y == v2->pos.y) { // natural flat top
+        if (v2->pos.x < v1->pos.x) // sort top vertices by x
+            ptr_swap(v1, v2, sizeof(TexVertex));
+        draw_flat_top_triangle_tex(v1, v2, v3, s);
+    }
+    else if (v2->pos.y == v3->pos.y) { // natural flat bottom
+        if (v3->pos.x < v2->pos.x) // sort bottom vertices by x
+            ptr_swap(v2, v3, sizeof(TexVertex));
+        draw_flat_bottom_triangle_tex(v1, v2, v3, s);
+    }
+    else { // general case - has to be split into 1 flat top and 1 flat bottom
+        // find a splitting vertex y
+        float alpha = (v2->pos.y - v1->pos.y) / (v3->pos.y - v1->pos.y);
+        // Interpolate to find the point between v3 and v1
+        TexVertex vi = tex_vertex_interpolate(v1, v3, alpha);
+
+        if (v2->pos.x < vi.pos.x) { // major right
+            draw_flat_bottom_triangle_tex(v1, v2, &vi, s);
+            draw_flat_top_triangle_tex(v2, &vi, v3, s);
+        }
+        else { // major left
+            draw_flat_bottom_triangle_tex(v1, &vi, v2, s);
+            draw_flat_top_triangle_tex(&vi, v2, v3, s);
         }
     }
 }
@@ -424,7 +535,7 @@ void draw_flat_top_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
     int yEnd = (int)ceil( v3->y - 0.5f); // not drawn
 
     for (int y = yStart; y < yEnd; y++) {
-        // calc Xs for start and end points
+        // calc Xs for start and end vertices
         // add 0.5 because it's calculater from pixel centers
         float x1 = m1 * ((float)y + 0.5f - v1->y) + v1->x;
         float x2 = m2 * ((float)y + 0.5f - v2->y) + v2->x;
@@ -441,6 +552,75 @@ void draw_flat_top_triangle (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
     }
 }
 
+void draw_flat_top_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s) {
+    // calculate slopes (inverse because Xs could be the same if it was horizontal, which would cause devision by 0)
+    float m1 = (v3->pos.x - v1->pos.x) / (v3->pos.y - v1->pos.y);
+    float m2 = (v3->pos.x - v2->pos.x) / (v3->pos.y - v2->pos.y);
+
+    // TOP part of the top-left rule
+    // start and end scanlines
+    int yStart = (int)ceil( v1->pos.y - 0.5f);
+    int yEnd = (int)ceil( v3->pos.y - 0.5f); // not drawn
+
+    // texture coordinate points
+    Vec2 tcEdgeL = v1->tc;
+    Vec2 tcEdgeR = v2->tc;
+    Vec2 tcBottom = v3->tc;
+
+    // texture coordinate edge unit step
+    Vec2 b_sub_l = vec2_subtract(&tcBottom, &tcEdgeL);
+    const Vec2 tcEdgeStepL = vec2_divide(&b_sub_l, (v3->pos.y - v1->pos.y));
+
+    Vec2 b_sub_r = vec2_subtract(&tcBottom, &tcEdgeR);
+    const Vec2 tcEdgeStepR = vec2_divide(&b_sub_r, (v3->pos.y - v2->pos.y));
+
+    // add texture edge prestep
+    Vec2 prestep = vec2_multiply(&tcEdgeStepL, ((float)yStart + 0.5f - v2->pos.y));
+    tcEdgeL = vec2_add(&tcEdgeL, &prestep);
+
+    prestep = vec2_multiply(&tcEdgeStepR, ((float)yStart + 0.5f - v2->pos.y));
+    tcEdgeR = vec2_add(&tcEdgeR, &prestep);
+
+    // init texture w/h and clamp values
+    const float tex_width = (float)s->w;
+    const float tex_height = (float)s->h;
+    const float tex_clamp_x = tex_width - 1.0f;
+    const float tex_clamp_y = tex_height - 1.0f;
+
+    for (int y = yStart; y < yEnd; y++,
+            tcEdgeL = vec2_add(&tcEdgeL, &tcEdgeStepL),
+            tcEdgeR = vec2_add(&tcEdgeR, &tcEdgeStepR)) 
+    {
+        // calc Xs for start and end vertices
+        // add 0.5 because it's calculater from pixel centers
+        float x1 = m1 * ((float)y + 0.5f - v1->pos.y) + v1->pos.x;
+        float x2 = m2 * ((float)y + 0.5f - v2->pos.y) + v2->pos.x;
+
+        // LEFT part of the top-left rule
+        // calc start and end pixels
+        int xStart = (int)ceil(x1 - 0.5f);
+        int xEnd = (int)ceil(x2 - 0.5f); // not drawn
+
+        // texture coordinate scanline unit step
+        Vec2 temp = vec2_subtract(&tcEdgeR, &tcEdgeL);
+        const Vec2 tcScanStep = vec2_divide(&temp, (x2 - x1));
+
+        temp = vec2_add(&tcEdgeL, &tcScanStep);
+        Vec2 tc = vec2_multiply(&temp, ((float)xStart + 0.5f - x1));
+
+        for (int x = xStart; x < xEnd; x++, tc = vec2_add(&tc, &tcScanStep)) {
+            Uint8 r, g, b, a;
+            get_pixel_rgba( s, 
+                            fmin(tc.x * tex_width, tex_clamp_x),
+                            fmin(tc.y * tex_height, tex_clamp_y),
+                            &r, &g, &b, &a);
+
+            SDL_SetRenderDrawColor(renderer, r, g, b, a);
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+    }
+}
+
 void draw_flat_bottom_triangle  (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
     // calculate slopes (inverse because Xs could be the same if it was horizontal, which would cause devision by 0)
     float m1 = (v2->x - v1->x) / (v2->y - v1->y);
@@ -452,7 +632,7 @@ void draw_flat_bottom_triangle  (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
     int yEnd = (int)ceil( v3->y - 0.5f); // not drawn
 
     for (int y = yStart; y < yEnd; y++) {
-        // calc Xs for start and end points
+        // calc Xs for start and end vertices
         // add 0.5 because it's calculater from pixel centers
         float x1 = m1 * ((float)y + 0.5f - v1->y) + v1->x;
         float x2 = m2 * ((float)y + 0.5f - v1->y) + v1->x;
@@ -464,6 +644,76 @@ void draw_flat_bottom_triangle  (Vec2* v1, Vec2* v2, Vec2* v3, SDL_Color c) {
 
         for (int x = xStart; x < xEnd; x++) {
             SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+    }
+}
+
+void draw_flat_bottom_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s) {
+    // calculate slopes (inverse because Xs could be the same if it was horizontal, which would cause devision by 0)
+    float m1 = (v2->pos.x - v1->pos.x) / (v2->pos.y - v1->pos.y);
+    float m2 = (v3->pos.x - v1->pos.x) / (v3->pos.y - v1->pos.y);
+
+    // TOP part of the top-left rule
+    // start and end scanlines
+    int yStart = (int)ceil( v1->pos.y - 0.5f);
+    int yEnd = (int)ceil( v3->pos.y - 0.5f); // not drawn
+
+    // texture coordinate points
+    Vec2 tcEdgeL = v1->tc;
+    Vec2 tcEdgeR = v1->tc;
+    Vec2 tcBottomL = v2->tc;
+    Vec2 tcBottomR = v3->tc;
+
+    // texture coordinate edge unit step
+    Vec2 b_sub_l = vec2_subtract(&tcBottomL, &tcEdgeL);
+    const Vec2 tcEdgeStepL = vec2_divide(&b_sub_l, (v2->pos.y - v1->pos.y));
+
+    Vec2 b_sub_r = vec2_subtract(&tcBottomR, &tcEdgeR);
+    const Vec2 tcEdgeStepR = vec2_divide(&b_sub_r, (v3->pos.y - v1->pos.y));
+
+    // add texture edge prestep
+    Vec2 prestep = vec2_multiply(&tcEdgeStepL, ((float)yStart + 0.5f - v1->pos.y));
+    tcEdgeL = vec2_add(&tcEdgeL, &prestep);
+
+    prestep = vec2_multiply(&tcEdgeStepR, ((float)yStart + 0.5f - v1->pos.y));
+    tcEdgeR = vec2_add(&tcEdgeR, &prestep);
+
+    // init texture w/h and clamp values
+    const float tex_width = (float)s->w;
+    const float tex_height = (float)s->h;
+    const float tex_clamp_x = tex_width - 1.0f;
+    const float tex_clamp_y = tex_height - 1.0f;
+
+    for (int y = yStart; y < yEnd; y++,
+            tcEdgeL = vec2_add(&tcEdgeL, &tcEdgeStepL),
+            tcEdgeR = vec2_add(&tcEdgeR, &tcEdgeStepR)) 
+    {
+        // calc Xs for start and end vertices
+        // add 0.5 because it's calculater from pixel centers
+        float x1 = m1 * ((float)y + 0.5f - v1->pos.y) + v1->pos.x;
+        float x2 = m2 * ((float)y + 0.5f - v1->pos.y) + v1->pos.x;
+
+        // LEFT part of the top-left rule
+        // calc start and end pixels
+        int xStart = (int)ceil(x1 - 0.5f);
+        int xEnd = (int)ceil(x2 - 0.5f); // not drawn
+
+        // texture coordinate scanline unit step
+        Vec2 temp = vec2_subtract(&tcEdgeR, &tcEdgeL);
+        const Vec2 tcScanStep = vec2_divide(&temp, (x2 - x1));
+
+        temp = vec2_add(&tcEdgeL, &tcScanStep);
+        Vec2 tc = vec2_multiply(&temp, ((float)xStart + 0.5f - x1));
+
+        for (int x = xStart; x < xEnd; x++, tc = vec2_add(&tc, &tcScanStep)) {
+            Uint8 r, g, b, a;
+            get_pixel_rgba( s, 
+                            fmin(tc.x * tex_width, tex_clamp_x),
+                            fmin(tc.y * tex_height, tex_clamp_y),
+                            &r, &g, &b, &a);
+
+            SDL_SetRenderDrawColor(renderer, r, g, b, a);
             SDL_RenderDrawPoint(renderer, x, y);
         }
     }
@@ -492,19 +742,101 @@ Vec3 vec3_subtract (const Vec3* v1, const Vec3* v2) {
     return result;
 }
 
-void restart_cube() {
-    points[0].x = -SIZE; points[0].y = -SIZE; points[0].z = -SIZE;
-    points[1].x = SIZE;  points[1].y = -SIZE; points[1].z = -SIZE;
-    points[2].x = -SIZE; points[2].y = SIZE;  points[2].z = -SIZE;
-    points[3].x = SIZE;  points[3].y = SIZE;  points[3].z = -SIZE;
-    points[4].x = -SIZE; points[4].y = -SIZE; points[4].z = SIZE;
-    points[5].x = SIZE;  points[5].y = -SIZE; points[5].z = SIZE;
-    points[6].x = -SIZE; points[6].y = SIZE;  points[6].z = SIZE;
-    points[7].x = SIZE;  points[7].y = SIZE;  points[7].z = SIZE;
+
+Vec3 vec3_interpolate (const Vec3* v1, const Vec3* v2, const float alpha) {
+    Vec3 result = {
+        v1->x + (v2->x - v1->x) * alpha,
+        v1->y + (v2->y - v1->y) * alpha,
+        v1->z + (v2->z - v1->z) * alpha,
+    };
+    return result;
 }
+
+Vec2 vec2_interpolate (const Vec2* v1, const Vec2* v2, const float alpha) {
+    Vec2 result = {
+        v1->x + (v2->x - v1->x) * alpha,
+        v1->y + (v2->y - v1->y) * alpha,
+    };
+    return result;
+}
+
+Vec2 vec2_subtract (const Vec2* v1, const Vec2* v2) {
+    Vec2 result = { 
+        v1->x - v2->x,
+        v1->y - v2->y,
+    };
+    return result;
+}
+
+Vec2 vec2_add (const Vec2* v1, const Vec2* v2) {
+    Vec2 result = { 
+        v1->x + v2->x,
+        v1->y + v2->y,
+    };
+    return result;
+}
+
+Vec2 vec2_divide (const Vec2* v, float scalar) {
+    Vec2 result = { 
+        v->x/scalar,
+        v->y/scalar,
+    };
+    return result;
+}
+
+Vec2 vec2_multiply (const Vec2* v, float scalar) {
+    Vec2 result = { 
+        v->x*scalar,
+        v->y*scalar,
+    };
+    return result;
+}
+
+TexVertex tex_vertex_interpolate (const TexVertex* v1, const TexVertex* v2, const float alpha) {
+    TexVertex result = {
+        vec2_interpolate(&v1->pos, &v2->pos, alpha),
+        vec2_interpolate(&v1->tc, &v2->tc, alpha),
+    };
+    return result;
+}
+
+
+void restart_cube() {
+    vertices[0].x = -SIZE; vertices[0].y = -SIZE; vertices[0].z = -SIZE;
+    vertices[1].x = SIZE;  vertices[1].y = -SIZE; vertices[1].z = -SIZE;
+    vertices[2].x = -SIZE; vertices[2].y = SIZE;  vertices[2].z = -SIZE;
+    vertices[3].x = SIZE;  vertices[3].y = SIZE;  vertices[3].z = -SIZE;
+    vertices[4].x = -SIZE; vertices[4].y = -SIZE; vertices[4].z = SIZE;
+    vertices[5].x = SIZE;  vertices[5].y = -SIZE; vertices[5].z = SIZE;
+    vertices[6].x = -SIZE; vertices[6].y = SIZE;  vertices[6].z = SIZE;
+    vertices[7].x = SIZE;  vertices[7].y = SIZE;  vertices[7].z = SIZE;
+}
+
+Uint32 get_pixel(SDL_Surface* surface, int x, int y) {
+    // check if coordinates are within the bounds of the surface
+    if (x < 0 || x >= surface->w || y < 0 || y >= surface->h) {
+        return 0; 
+    }
+
+    // pixel's position in the surface's pixel buffer
+    int bpp = surface->format->BytesPerPixel;
+    Uint8 *pixel_ptr = (Uint8 *)surface->pixels + (y * surface->pitch) + (x * bpp);
+
+    Uint32 pixel_value;
+    memcpy(&pixel_value, pixel_ptr, bpp);
+
+    return pixel_value;
+}
+
+void get_pixel_rgba(SDL_Surface* surface, int x, int y, Uint8* r, Uint8* g, Uint8* b, Uint8* a) {
+    Uint32 pixel_value = get_pixel(surface, x, y);
+    SDL_GetRGBA(pixel_value, surface->format, r, g, b, a);
+}
+
 
 void destroy_window() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
     SDL_Quit();
 }
