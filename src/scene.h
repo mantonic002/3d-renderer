@@ -5,6 +5,7 @@
 #include "vec3.h"
 #include "tex_vertex.h"
 #include "constants.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
@@ -26,5 +27,6 @@ typedef struct Scene {
 } Scene;
 
 Scene make_cube(SDL_Surface** texture);
+void restart_cube(Scene* scene);
 
 #endif

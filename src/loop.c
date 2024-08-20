@@ -5,12 +5,6 @@ int initialize_window(SDL_Window** window, SDL_Renderer** renderer) {
         fprintf(stderr, "Error initializing SDL.\n");
         return false;
     }
-    
-    if (TTF_Init() != 0) {
-        fprintf(stderr, "Error initializing SDL_ttf.\n");
-        SDL_Quit();
-        return false;
-    }
 
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
         fprintf(stderr, "Error initializing SDL_image.\n");
@@ -43,12 +37,8 @@ int initialize_window(SDL_Window** window, SDL_Renderer** renderer) {
     return true;
 }
 
-void setup(TTF_Font** font, SDL_Window** window, SDL_Renderer** renderer) {
-    *font = TTF_OpenFont("res/font.ttf", FONT_SIZE);
-    if (!*font) {
-        fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
-        destroy_window(window, renderer);
-    }
+void setup(SDL_Window** window, SDL_Renderer** renderer) {
+
 }
 
 int process_input(bool* keys, float* delta_time, Scene* scene) {

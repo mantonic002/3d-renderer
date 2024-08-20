@@ -7,6 +7,9 @@
         "helper.h": "c",
         "sdl.h": "c",
         "scene.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "sdl_ttf.h": "c",
+        "vec2.h": "c",
+        "draw_triangles_tex.h": "c"
     }
 }

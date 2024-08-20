@@ -3,6 +3,7 @@
 
 #include "tex_vertex.h"
 #include "helper.h"
+
 #include <SDL2/SDL.h>
 
 void draw_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer);

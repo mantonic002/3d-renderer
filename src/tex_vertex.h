@@ -1,7 +1,7 @@
 #ifndef TEX_VER_H
 #define TEX_VER_H
 
-#include "./vec2.h"
+#include "vec2.h"
 
 typedef struct TexVertex
 {

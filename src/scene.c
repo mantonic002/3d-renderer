@@ -123,3 +123,14 @@ Scene make_cube(SDL_Surface** texture) {
 
     return cube;
 }
+
+void restart_cube(Scene* scene) {
+    scene->vertices[0].x = -SIZE; scene->vertices[0].y = -SIZE; scene->vertices[0].z = -SIZE;
+    scene->vertices[1].x = SIZE;  scene->vertices[1].y = -SIZE; scene->vertices[1].z = -SIZE;
+    scene->vertices[2].x = -SIZE; scene->vertices[2].y = SIZE;  scene->vertices[2].z = -SIZE;
+    scene->vertices[3].x = SIZE;  scene->vertices[3].y = SIZE;  scene->vertices[3].z = -SIZE;
+    scene->vertices[4].x = -SIZE; scene->vertices[4].y = -SIZE; scene->vertices[4].z = SIZE;
+    scene->vertices[5].x = SIZE;  scene->vertices[5].y = -SIZE; scene->vertices[5].z = SIZE;
+    scene->vertices[6].x = -SIZE; scene->vertices[6].y = SIZE;  scene->vertices[6].z = SIZE;
+    scene->vertices[7].x = SIZE;  scene->vertices[7].y = SIZE;  scene->vertices[7].z = SIZE;
+}

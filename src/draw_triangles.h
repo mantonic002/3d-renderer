@@ -3,6 +3,7 @@
 
 #include "vec2.h"
 #include "helper.h"
+
 #include <SDL2/SDL.h>
 
 
