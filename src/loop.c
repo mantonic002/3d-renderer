@@ -1,0 +1,136 @@
+#include "./loop.h"
+
+int initialize_window(SDL_Window** window, SDL_Renderer** renderer) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        fprintf(stderr, "Error initializing SDL.\n");
+        return false;
+    }
+    
+    if (TTF_Init() != 0) {
+        fprintf(stderr, "Error initializing SDL_ttf.\n");
+        SDL_Quit();
+        return false;
+    }
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        fprintf(stderr, "Error initializing SDL_image.\n");
+        return false;
+    }
+
+    *window = SDL_CreateWindow(
+        NULL,
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+        SDL_WINDOW_BORDERLESS
+    );
+    if (!*window) {
+        fprintf(stderr, "Error initializing SDL window.\n");
+        return false;
+    }
+
+    *renderer = SDL_CreateRenderer(
+        *window,
+        -1,
+        0
+    );
+    if (!*renderer) {
+        fprintf(stderr, "Error initializing SDL renderer.\n");
+        return false;
+    }
+
+    return true;
+}
+
+void setup(TTF_Font** font, SDL_Window** window, SDL_Renderer** renderer) {
+    *font = TTF_OpenFont("res/font.ttf", FONT_SIZE);
+    if (!*font) {
+        fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
+        destroy_window(window, renderer);
+    }
+}
+
+int process_input(bool* keys, float* delta_time, Scene* scene) {
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            return false;
+            break;
+
+        case SDL_KEYDOWN:
+            if (event.key.keysym.sym == SDLK_ESCAPE)
+            return false;
+            else
+                keys[event.key.keysym.scancode] = true;
+            break;
+
+        case SDL_KEYUP:
+            if (event.key.keysym.scancode == SDL_SCANCODE_W) {
+                scene->wireframe = !scene->wireframe;
+                scene->textured = false;
+            }
+            if (event.key.keysym.scancode == SDL_SCANCODE_T) {
+                scene->textured = !scene->textured;
+                scene->wireframe = false;
+            }
+
+            keys[event.key.keysym.scancode] = false;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    // Update angles based on key states
+    if (keys[SDL_SCANCODE_X])
+        scene->angle_x += 0.02f;
+    if (keys[SDL_SCANCODE_Y])
+        scene->angle_y += 0.02f;
+    if (keys[SDL_SCANCODE_Z])
+        scene->angle_z += 0.02f;
+
+    // move the cube closer or further away with arrow keys
+    if (keys[SDL_SCANCODE_UP] && scene->z_offset >= 2 && scene->z_offset < 19.9f)
+    {
+        scene->z_offset += 0.5f;
+    }
+
+    if (keys[SDL_SCANCODE_DOWN] && scene->z_offset > 2.1f && scene->z_offset <= 20)
+    {
+        scene->z_offset -= 0.5f;
+    }
+    return true;
+}
+
+void update(int *last_frame_time, float *delta_time, Scene* scene) {
+    // delaying to keep the constant frame rate
+    int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - *last_frame_time);
+    
+    if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
+        SDL_Delay(time_to_wait);
+    }
+
+    // delta time factor in seconds
+    *delta_time = (SDL_GetTicks() - *last_frame_time) / 1000.0f;
+
+    *last_frame_time = SDL_GetTicks();
+
+    //check if rotation angles are more than 2pi and return them to zero if they are
+    if (scene->angle_x >= 2*PI)
+        scene->angle_x = 0;
+    if (scene->angle_y >= 2*PI)
+        scene->angle_y = 0;
+    if (scene->angle_z >= 2*PI)
+        scene->angle_z = 0;
+}
+
+void destroy_window(SDL_Window** window, SDL_Renderer** renderer) {
+    SDL_DestroyRenderer(*renderer);
+    SDL_DestroyWindow(*window);
+    IMG_Quit();
+    SDL_Quit();
+}
