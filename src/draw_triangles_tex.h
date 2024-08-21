@@ -7,7 +7,9 @@
 #include <SDL2/SDL.h>
 
 void draw_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer);
-void draw_flat_top_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer);
-void draw_flat_bottom_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer);
+void draw_flat_top_triangle_tex (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer);
+void draw_flat_bottom_triangle_tex (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer);
+void draw_flat_triangle_tex (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer,
+                             const TexVertex* dv1, const TexVertex* dv2, TexVertex* itEdge2);
 
 #endif

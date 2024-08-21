@@ -1,6 +1,6 @@
 #include "scene.h"
 
-Scene make_cube(SDL_Surface** texture) {
+Scene make_cube(SDL_Surface** texture, float texture_dimension) {
     bool wireframe = false;
     bool textured = false;
 
@@ -31,13 +31,13 @@ Scene make_cube(SDL_Surface** texture) {
     }
 
     TexVertex temp_projected_points[8] = {
-        {{-SIZE, -SIZE}, {0.0f, 1.0f}},
-        {{SIZE, -SIZE},  {1.0f, 1.0f}},
+        {{-SIZE, -SIZE}, {0.0f, texture_dimension}},
+        {{SIZE, -SIZE},  {texture_dimension, texture_dimension}},
         {{-SIZE, SIZE},  {0.0f, 0.0f}},
-        {{SIZE, SIZE},   {1.0f, 0.0f}},
-        {{-SIZE, -SIZE},  {1.0f, 1.0f}},
-        {{SIZE, -SIZE},   {0.0f, 1.0f}},
-        {{-SIZE, SIZE},   {1.0f, 0.0f}},
+        {{SIZE, SIZE},   {texture_dimension, 0.0f}},
+        {{-SIZE, -SIZE},  {texture_dimension, texture_dimension}},
+        {{SIZE, -SIZE},   {0.0f, texture_dimension}},
+        {{-SIZE, SIZE},   {texture_dimension, 0.0f}},
         {{SIZE, SIZE},    {0.0f, 0.0f}},
     };
     memcpy(projected_points, temp_projected_points, 8 * sizeof(TexVertex));

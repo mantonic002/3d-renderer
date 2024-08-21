@@ -1,6 +1,6 @@
-#include "draw_triangles_tex.h"
+#include "draw_triangles_tex_wrap.h"
 
-void draw_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
+void draw_triangle_tex_wrap (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
     // sort vertices by y (height)
     if (v2->pos.y < v1->pos.y) 
         ptr_swap(v1, v2, sizeof(TexVertex));
@@ -12,12 +12,12 @@ void draw_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface
     if (v1->pos.y == v2->pos.y) { // natural flat top
         if (v2->pos.x < v1->pos.x) // sort top vertices by x
             ptr_swap(v1, v2, sizeof(TexVertex));
-        draw_flat_top_triangle_tex(v1, v2, v3, s, renderer);
+        draw_flat_top_triangle_tex_wrap(v1, v2, v3, s, renderer);
     }
     else if (v2->pos.y == v3->pos.y) { // natural flat bottom
         if (v3->pos.x < v2->pos.x) // sort bottom vertices by x
             ptr_swap(v2, v3, sizeof(TexVertex));
-        draw_flat_bottom_triangle_tex(v1, v2, v3, s, renderer);
+        draw_flat_bottom_triangle_tex_wrap(v1, v2, v3, s, renderer);
     }
     else { // general case - has to be split into 1 flat top and 1 flat bottom
         // find a splitting vertex y
@@ -26,19 +26,19 @@ void draw_triangle_tex (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface
         TexVertex vi = tex_vertex_interpolate(v1, v3, alpha);
 
         if (v2->pos.x < vi.pos.x) { // major right
-            draw_flat_bottom_triangle_tex(v1, v2, &vi, s, renderer);
-            draw_flat_top_triangle_tex(v2, &vi, v3, s, renderer);
+            draw_flat_bottom_triangle_tex_wrap(v1, v2, &vi, s, renderer);
+            draw_flat_top_triangle_tex_wrap(v2, &vi, v3, s, renderer);
         }
         else { // major left
-            draw_flat_bottom_triangle_tex(v1, &vi, v2, s, renderer);
-            draw_flat_top_triangle_tex(&vi, v2, v3, s, renderer);
+            draw_flat_bottom_triangle_tex_wrap(v1, &vi, v2, s, renderer);
+            draw_flat_top_triangle_tex_wrap(&vi, v2, v3, s, renderer);
         }
     }
 }
 
 
 
-void draw_flat_top_triangle_tex (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
+void draw_flat_top_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
     // calc dVertex / delta_y
     float delta_y = v3->pos.y - v1->pos.y;
     TexVertex temp = tex_vertex_subtract(v3, v1);
@@ -50,11 +50,11 @@ void draw_flat_top_triangle_tex (const TexVertex* v1, const TexVertex* v2, const
     // right edge interpolants
     TexVertex itEdge2 = *v2;
 
-    draw_flat_triangle_tex(v1, v2, v3, s, renderer, &dv1, &dv2, &itEdge2);
+    draw_flat_triangle_tex_wrap(v1, v2, v3, s, renderer, &dv1, &dv2, &itEdge2);
 
 }
 
-void draw_flat_bottom_triangle_tex (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
+void draw_flat_bottom_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
     // calc dVertex / delta_y
     float delta_y = v3->pos.y - v1->pos.y;
     TexVertex temp = tex_vertex_subtract(v2, v1);
@@ -66,10 +66,10 @@ void draw_flat_bottom_triangle_tex (const TexVertex* v1, const TexVertex* v2, co
     // right edge interpolant
     TexVertex itEdge1 = *v1;
  
-    draw_flat_triangle_tex(v1, v2, v3, s, renderer, &dv1, &dv2, &itEdge1);
+    draw_flat_triangle_tex_wrap(v1, v2, v3, s, renderer, &dv1, &dv2, &itEdge1);
 }
 
-void draw_flat_triangle_tex (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer, const TexVertex* dv1, const TexVertex* dv2, TexVertex* itEdge2) {
+void draw_flat_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer, const TexVertex* dv1, const TexVertex* dv2, TexVertex* itEdge2) {
     // left edge interpolant
     TexVertex itEdge1 = *v1;
 
@@ -112,8 +112,8 @@ void draw_flat_triangle_tex (const TexVertex* v1, const TexVertex* v2, const Tex
 
         for (int x = xStart; x < xEnd; x++, itcLine = vec2_add(&itcLine, &dtcLine)) {
             get_pixel_rgba( s, 
-                            fmin(itcLine.x * tex_width, tex_clamp_x),
-                            fmin(itcLine.y * tex_height, tex_clamp_y),
+                            fmod(itcLine.x * tex_width, tex_clamp_x),
+                            fmod(itcLine.y * tex_height, tex_clamp_y),
                             &r, &g, &b, &a);
             SDL_SetRenderDrawColor(*renderer, r, g, b, a);
             SDL_RenderDrawPoint(*renderer, x, y);

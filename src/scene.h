@@ -26,7 +26,7 @@ typedef struct Scene {
     SDL_Surface* texture;
 } Scene;
 
-Scene make_cube(SDL_Surface** texture);
+Scene make_cube(SDL_Surface** texture, float texture_dimension);
 void restart_cube(Scene* scene);
 
 #endif

@@ -4,6 +4,7 @@
 #include "scene.h"
 #include "draw_triangles.h"
 #include "draw_triangles_tex.h"
+#include "draw_triangles_tex_wrap.h"
 
 #include <SDL2/SDL.h>
 

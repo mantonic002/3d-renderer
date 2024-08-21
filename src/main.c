@@ -23,7 +23,7 @@ int main() {
 
     setup(&window, &renderer);
 
-    Scene cube = make_cube(&textureFromPng);
+    Scene cube = make_cube(&textureFromPng, 1.0f);
 
     while (game_is_running) {
         if (!process_input(keys, &delta_time, &cube)) game_is_running = false;

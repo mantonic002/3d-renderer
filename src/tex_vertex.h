@@ -10,5 +10,9 @@ typedef struct TexVertex
 } TexVertex;
 
 TexVertex tex_vertex_interpolate (const TexVertex* v1, const TexVertex* v2, const float alpha);
+TexVertex tex_vertex_subtract (const TexVertex* v1, const TexVertex* v2);
+TexVertex tex_vertex_add (const TexVertex* v1, const TexVertex* v2);
+TexVertex tex_vertex_divide (const TexVertex* v, float scalar);
+TexVertex tex_vertex_multiply (const TexVertex* v, float scalar);
 
 #endif
