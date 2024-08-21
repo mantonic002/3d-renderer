@@ -1,4 +1,4 @@
-# Simple 3D renderer
+[Screencast from 2024-08-21 03-02-25.webm](https://github.com/user-attachments/assets/ef145ab2-87ca-4aa3-b3be-3c8001720022)# Simple 3D renderer
 
 This repository contains a simple renderer written in C using SDL2 library for visuals.
 
@@ -15,6 +15,8 @@ This repository contains a simple renderer written in C using SDL2 library for v
 - Wireframe mode can be enabled and disabled by pressing ```W```.
 
 - Textures can be enabled and disabled by pressing ```T```.
+
+[Screencast from 2024-08-21 03-02-25.webm](https://github.com/user-attachments/assets/b28b6a5d-cdcc-4877-a3b5-ae6154a375af)
 
 ### How to Use
 
