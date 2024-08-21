@@ -1,4 +1,4 @@
-[Screencast from 2024-08-21 03-02-25.webm](https://github.com/user-attachments/assets/ef145ab2-87ca-4aa3-b3be-3c8001720022)# Simple 3D renderer
+# Simple 3D renderer
 
 This repository contains a simple renderer written in C using SDL2 library for visuals.
 
