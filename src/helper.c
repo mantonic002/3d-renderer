@@ -40,3 +40,14 @@ void multiplyMatrixByPoint(const float matrix[3][3], const Vec3* point, Vec3* re
     result->y = (point->x * matrix[0][1]) + (point->y * matrix[1][1]) + (point->z * matrix[2][1]);
     result->z = (point->x * matrix[0][2]) + (point->y * matrix[1][2]) + (point->z * matrix[2][2]);
 }
+
+void multiply_matrices(const float matrixA[3][3], const float matrixB[3][3], float result[3][3]) {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            result[i][j] = 0.0f;
+            for (int k = 0; k < 3; ++k) {
+                result[i][j] += matrixA[i][k] * matrixB[k][j];
+            }
+        }
+    }
+}

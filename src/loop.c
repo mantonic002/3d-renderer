@@ -58,15 +58,6 @@ int process_input(bool* keys, float* delta_time, Scene* scene) {
             break;
 
         case SDL_KEYUP:
-            if (event.key.keysym.scancode == SDL_SCANCODE_W) {
-                scene->wireframe = !scene->wireframe;
-                scene->textured = false;
-            }
-            if (event.key.keysym.scancode == SDL_SCANCODE_T) {
-                scene->textured = !scene->textured;
-                scene->wireframe = false;
-            }
-
             keys[event.key.keysym.scancode] = false;
             break;
 

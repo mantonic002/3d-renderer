@@ -12,12 +12,8 @@
 #include <SDL2/SDL_image.h>
 
 typedef struct Scene {
-    bool wireframe;
-    bool textured;
     Vertex* vertices;
-    Vec2* edges;
     Vec3* indices;
-    bool* cullFlags;
     float angle_x;
     float angle_y;
     float angle_z;
