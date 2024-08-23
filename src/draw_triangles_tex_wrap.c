@@ -1,29 +1,29 @@
 #include "draw_triangles_tex_wrap.h"
 
-void draw_triangle_tex_wrap (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
+void draw_triangle_tex_wrap (Vertex* v1, Vertex* v2, Vertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
     // sort vertices by y (height)
     if (v2->pos.y < v1->pos.y) 
-        ptr_swap(v1, v2, sizeof(TexVertex));
+        ptr_swap(v1, v2, sizeof(Vertex));
     if (v3->pos.y < v2->pos.y) 
-        ptr_swap(v2, v3, sizeof(TexVertex));
+        ptr_swap(v2, v3, sizeof(Vertex));
     if (v2->pos.y < v1->pos.y) 
-        ptr_swap(v1, v2, sizeof(TexVertex));
+        ptr_swap(v1, v2, sizeof(Vertex));
 
     if (v1->pos.y == v2->pos.y) { // natural flat top
         if (v2->pos.x < v1->pos.x) // sort top vertices by x
-            ptr_swap(v1, v2, sizeof(TexVertex));
+            ptr_swap(v1, v2, sizeof(Vertex));
         draw_flat_top_triangle_tex_wrap(v1, v2, v3, s, renderer);
     }
     else if (v2->pos.y == v3->pos.y) { // natural flat bottom
         if (v3->pos.x < v2->pos.x) // sort bottom vertices by x
-            ptr_swap(v2, v3, sizeof(TexVertex));
+            ptr_swap(v2, v3, sizeof(Vertex));
         draw_flat_bottom_triangle_tex_wrap(v1, v2, v3, s, renderer);
     }
     else { // general case - has to be split into 1 flat top and 1 flat bottom
         // find a splitting vertex y
         float alpha = (v2->pos.y - v1->pos.y) / (v3->pos.y - v1->pos.y);
         // Interpolate to find the point between v3 and v1
-        TexVertex vi = tex_vertex_interpolate(v1, v3, alpha);
+        Vertex vi = vertex_interpolate(v1, v3, alpha);
 
         if (v2->pos.x < vi.pos.x) { // major right
             draw_flat_bottom_triangle_tex_wrap(v1, v2, &vi, s, renderer);
@@ -38,39 +38,39 @@ void draw_triangle_tex_wrap (TexVertex* v1, TexVertex* v2, TexVertex* v3, SDL_Su
 
 
 
-void draw_flat_top_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
+void draw_flat_top_triangle_tex_wrap (const Vertex* v1, const Vertex* v2, const Vertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
     // calc dVertex / delta_y
     float delta_y = v3->pos.y - v1->pos.y;
-    TexVertex temp = tex_vertex_subtract(v3, v1);
-    TexVertex dv1 = tex_vertex_divide(&temp, delta_y);
+    Vertex temp = vertex_subtract(v3, v1);
+    Vertex dv1 = vertex_divide(&temp, delta_y);
 
-    temp = tex_vertex_subtract(v3, v2);
-    TexVertex dv2 = tex_vertex_divide(&temp, delta_y);
+    temp = vertex_subtract(v3, v2);
+    Vertex dv2 = vertex_divide(&temp, delta_y);
 
     // right edge interpolants
-    TexVertex itEdge2 = *v2;
+    Vertex itEdge2 = *v2;
 
     draw_flat_triangle_tex_wrap(v1, v2, v3, s, renderer, &dv1, &dv2, &itEdge2);
 }
 
-void draw_flat_bottom_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
+void draw_flat_bottom_triangle_tex_wrap (const Vertex* v1, const Vertex* v2, const Vertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {
     // calc dVertex / delta_y
     float delta_y = v3->pos.y - v1->pos.y;
-    TexVertex temp = tex_vertex_subtract(v2, v1);
-    TexVertex dv1 = tex_vertex_divide(&temp, delta_y);
+    Vertex temp = vertex_subtract(v2, v1);
+    Vertex dv1 = vertex_divide(&temp, delta_y);
 
-    temp = tex_vertex_subtract(v3, v1);
-    TexVertex dv2 = tex_vertex_divide(&temp, delta_y);
+    temp = vertex_subtract(v3, v1);
+    Vertex dv2 = vertex_divide(&temp, delta_y);
 
     // right edge interpolant
-    TexVertex itEdge1 = *v1;
+    Vertex itEdge1 = *v1;
  
     draw_flat_triangle_tex_wrap(v1, v2, v3, s, renderer, &dv1, &dv2, &itEdge1);
 }
 
-void draw_flat_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer, const TexVertex* dv1, const TexVertex* dv2, TexVertex* itEdge2) {
+void draw_flat_triangle_tex_wrap (const Vertex* v1, const Vertex* v2, const Vertex* v3, SDL_Surface* s, SDL_Renderer** renderer, const Vertex* dv1, const Vertex* dv2, Vertex* itEdge2) {
     // left edge interpolant
-    TexVertex itEdge1 = *v1;
+    Vertex itEdge1 = *v1;
 
     // TOP part of the top-left rule
     // start and end scanlines
@@ -78,11 +78,11 @@ void draw_flat_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, cons
     int yEnd = (int)ceil( v3->pos.y - 0.5f); // not drawn
 
     //interpolant prestep
-    TexVertex temp = tex_vertex_multiply(dv1, ((float)yStart + 0.5f - v1->pos.y));
-    itEdge1 = tex_vertex_add(&itEdge1, &temp);
+    Vertex temp = vertex_multiply(dv1, ((float)yStart + 0.5f - v1->pos.y));
+    itEdge1 = vertex_add(&itEdge1, &temp);
 
-    temp = tex_vertex_multiply(dv2, ((float)yStart + 0.5f - v1->pos.y));
-    *itEdge2 = tex_vertex_add(itEdge2, &temp);
+    temp = vertex_multiply(dv2, ((float)yStart + 0.5f - v1->pos.y));
+    *itEdge2 = vertex_add(itEdge2, &temp);
 
     // init texture w/h and clamp values
     const float tex_width = (float)s->w;
@@ -93,8 +93,8 @@ void draw_flat_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, cons
     Uint8 r, g, b, a;
 
     for (int y = yStart; y < yEnd; y++,
-            itEdge1 = tex_vertex_add(&itEdge1, dv1),
-            *itEdge2 = tex_vertex_add(itEdge2, dv2)) 
+            itEdge1 = vertex_add(&itEdge1, dv1),
+            *itEdge2 = vertex_add(itEdge2, dv2)) 
     {
         // LEFT part of the top-left rule
         // calc start and end pixels

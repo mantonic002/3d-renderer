@@ -3,7 +3,7 @@
 
 #include "vec2.h"
 #include "vec3.h"
-#include "tex_vertex.h"
+#include "vertex.h"
 #include "constants.h"
 
 #include <stdio.h>
@@ -14,7 +14,7 @@
 typedef struct Scene {
     bool wireframe;
     bool textured;
-    TexVertex* vertices;
+    Vertex* vertices;
     Vec2* edges;
     Vec3* indices;
     bool* cullFlags;

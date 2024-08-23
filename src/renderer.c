@@ -97,9 +97,9 @@ void render(SDL_Renderer** renderer, Scene* scene) {
         for (int i = 0; i < 12; i++) {
             if (!scene->cullFlags[i]) {                
                 Vec3 index = scene->indices[i];
-                TexVertex tv1 = scene->vertices[(int)index.x];
-                TexVertex tv2 = scene->vertices[(int)index.y];
-                TexVertex tv3 = scene->vertices[(int)index.z];
+                Vertex tv1 = scene->vertices[(int)index.x];
+                Vertex tv2 = scene->vertices[(int)index.y];
+                Vertex tv3 = scene->vertices[(int)index.z];
 
                 draw_triangle_tex(&tv1, &tv2, &tv3, scene->texture, renderer);
             }

@@ -5,13 +5,13 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
     bool textured = false;
 
     // vertices of a cube
-    TexVertex* vertices = malloc(8 * sizeof(TexVertex));
+    Vertex* vertices = malloc(8 * sizeof(Vertex));
     if (!vertices) {
         fprintf(stderr, "Memory allocation failed for vertices\n");
         exit(1);
     }
 
-    TexVertex temp_vertices[8] = {
+    Vertex temp_vertices[8] = {
         {{-SIZE, -SIZE, -SIZE},  {0.0f, texture_dimension}},            
         {{SIZE, -SIZE, -SIZE},   {texture_dimension, texture_dimension}},
         {{-SIZE, SIZE, -SIZE},   {0.0f, 0.0f}},
@@ -21,7 +21,7 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
         {{-SIZE, SIZE, SIZE},     {texture_dimension, 0.0f}},            
         {{SIZE, SIZE, SIZE},     {0.0f, 0.0f}},
     };
-    memcpy(vertices, temp_vertices, 8 * sizeof(TexVertex));
+    memcpy(vertices, temp_vertices, 8 * sizeof(Vertex));
 
 
     Vec2* edges = malloc(12 * sizeof(Vec2));
