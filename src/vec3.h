@@ -11,6 +11,9 @@ typedef struct Vec3
 Vec3 cross_product (const Vec3* v1, const Vec3* v2);
 float dot_product (const Vec3* v1, const Vec3* v2);
 Vec3 vec3_subtract (const Vec3* v1, const Vec3* v2);
+Vec3 vec3_add (const Vec3* v1, const Vec3* v2);
+Vec3 vec3_divide (const Vec3* v1, float scalar);
+Vec3 vec3_multiply (const Vec3* v1, float scalar);
 Vec3 vec3_interpolate (const Vec3* v1, const Vec3* v2, const float alpha);
 
 

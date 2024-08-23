@@ -14,8 +14,7 @@
 typedef struct Scene {
     bool wireframe;
     bool textured;
-    Vec3* vertices;
-    TexVertex* projected_points;
+    TexVertex* vertices;
     Vec2* edges;
     Vec3* indices;
     bool* cullFlags;

@@ -51,7 +51,6 @@ void draw_flat_top_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, 
     TexVertex itEdge2 = *v2;
 
     draw_flat_triangle_tex_wrap(v1, v2, v3, s, renderer, &dv1, &dv2, &itEdge2);
-
 }
 
 void draw_flat_bottom_triangle_tex_wrap (const TexVertex* v1, const TexVertex* v2, const TexVertex* v3, SDL_Surface* s, SDL_Renderer** renderer) {

@@ -86,12 +86,12 @@ int process_input(bool* keys, float* delta_time, Scene* scene) {
     // move the cube closer or further away with arrow keys
     if (keys[SDL_SCANCODE_UP] && scene->z_offset >= 2 && scene->z_offset < 19.9f)
     {
-        scene->z_offset += 0.5f;
+        scene->z_offset += 0.1f;
     }
 
     if (keys[SDL_SCANCODE_DOWN] && scene->z_offset > 2.1f && scene->z_offset <= 20)
     {
-        scene->z_offset -= 0.5f;
+        scene->z_offset -= 0.1f;
     }
     return true;
 }

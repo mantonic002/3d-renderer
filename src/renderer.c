@@ -36,7 +36,7 @@ void render(SDL_Renderer** renderer, Scene* scene) {
     //TODO: Everything in this loops keeps repeating for some reason
     // rotate and make a projection of each point
     for (int i = 0; i < 8; i++) {
-        Vec3 point = scene->vertices[i];
+        Vec3 point = scene->vertices[i].pos;
 
         // rotation around z axis
         Vec3 rotation_z;
@@ -53,14 +53,14 @@ void render(SDL_Renderer** renderer, Scene* scene) {
         // move cube away from the screen by z_offset
         rotation_x.z += scene->z_offset;
 
-        scene->vertices[i] = rotation_x;
+        scene->vertices[i].pos = rotation_x;
     }
 
     // backface culling
     for (int i = 0; i < 12; i++) {
-        Vec3 v1 = scene->vertices[(int)scene->indices[i].x];
-        Vec3 v2 = scene->vertices[(int)scene->indices[i].y];
-        Vec3 v3 = scene->vertices[(int)scene->indices[i].z];
+        Vec3 v1 = scene->vertices[(int)scene->indices[i].x].pos;
+        Vec3 v2 = scene->vertices[(int)scene->indices[i].y].pos;
+        Vec3 v3 = scene->vertices[(int)scene->indices[i].z].pos;
 
         Vec3 v2_sub_v1 = vec3_subtract(&v2, &v1);
         Vec3 v3_sub_v1 = vec3_subtract(&v3, &v1);
@@ -70,7 +70,7 @@ void render(SDL_Renderer** renderer, Scene* scene) {
 
     // projection
     for (int i = 0; i < 8; i++) {
-        Vec3 curr = scene->vertices[i];
+        Vec3 curr = scene->vertices[i].pos;
         
         zInv = 1.0f / curr.z;
         curr.x = curr.x*zInv;
@@ -79,18 +79,16 @@ void render(SDL_Renderer** renderer, Scene* scene) {
         Vec3 projection;
         multiplyMatrixByPoint(projection_matrix, &curr, &projection);
 
-        scene->projected_points[i].pos.x = WINDOW_WIDTH/2 + curr.x * SCALE;
-        scene->projected_points[i].pos.y = WINDOW_HEIGHT/2 + curr.y * SCALE;
+        scene->vertices[i].pos.x = WINDOW_WIDTH/2 + curr.x * SCALE;
+        scene->vertices[i].pos.y = WINDOW_HEIGHT/2 + curr.y * SCALE;
     }
-
-    restart_cube(scene);
 
     // draw lines based on the edges and vertices arrays
     if (scene->wireframe) {
         for (int i = 0; i < 12; i++) {
             Vec2 edge = scene->edges[i];
-            Vec2 p1 = scene->projected_points[(int)edge.x].pos;
-            Vec2 p2 = scene->projected_points[(int)edge.y].pos;
+            Vec3 p1 = scene->vertices[(int)edge.x].pos;
+            Vec3 p2 = scene->vertices[(int)edge.y].pos;
 
             SDL_RenderDrawLine(*renderer, p1.x, p1.y, p2.x, p2.y);
         }
@@ -99,9 +97,9 @@ void render(SDL_Renderer** renderer, Scene* scene) {
         for (int i = 0; i < 12; i++) {
             if (!scene->cullFlags[i]) {                
                 Vec3 index = scene->indices[i];
-                TexVertex tv1 = scene->projected_points[(int)index.x];
-                TexVertex tv2 = scene->projected_points[(int)index.y];
-                TexVertex tv3 = scene->projected_points[(int)index.z];
+                TexVertex tv1 = scene->vertices[(int)index.x];
+                TexVertex tv2 = scene->vertices[(int)index.y];
+                TexVertex tv3 = scene->vertices[(int)index.z];
 
                 draw_triangle_tex(&tv1, &tv2, &tv3, scene->texture, renderer);
             }
@@ -127,14 +125,16 @@ void render(SDL_Renderer** renderer, Scene* scene) {
         for (int i = 0; i < 12; i++) {
             if (!scene->cullFlags[i]) {                
                 Vec3 index = scene->indices[i];
-                Vec2 v1 = scene->projected_points[(int)index.x].pos;
-                Vec2 v2 = scene->projected_points[(int)index.y].pos;
-                Vec2 v3 = scene->projected_points[(int)index.z].pos;
+                Vec3 v1 = scene->vertices[(int)index.x].pos;
+                Vec3 v2 = scene->vertices[(int)index.y].pos;
+                Vec3 v3 = scene->vertices[(int)index.z].pos;
 
                 draw_triangle(&v1, &v2, &v3, colors[i], renderer);
             }
         }
     }
+
+    restart_cube(scene);
 
     SDL_RenderPresent(*renderer);
 }

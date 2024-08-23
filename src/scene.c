@@ -5,49 +5,30 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
     bool textured = false;
 
     // vertices of a cube
-    Vec3* vertices = malloc(8 * sizeof(Vec3));
+    TexVertex* vertices = malloc(8 * sizeof(TexVertex));
     if (!vertices) {
         fprintf(stderr, "Memory allocation failed for vertices\n");
-        exit(1); // Or handle the error as needed
+        exit(1);
     }
 
-    Vec3 temp_vertices[8] = {
-        {-SIZE, -SIZE, -SIZE},
-        {SIZE, -SIZE, -SIZE},
-        {-SIZE, SIZE, -SIZE},
-        {SIZE, SIZE, -SIZE}, 
-        {-SIZE, -SIZE, SIZE},
-        {SIZE, -SIZE, SIZE}, 
-        {-SIZE, SIZE, SIZE}, 
-        {SIZE, SIZE, SIZE},  
+    TexVertex temp_vertices[8] = {
+        {{-SIZE, -SIZE, -SIZE},  {0.0f, texture_dimension}},            
+        {{SIZE, -SIZE, -SIZE},   {texture_dimension, texture_dimension}},
+        {{-SIZE, SIZE, -SIZE},   {0.0f, 0.0f}},
+        {{SIZE, SIZE, -SIZE},    {texture_dimension, 0.0f}},            
+        {{-SIZE, -SIZE, SIZE},   {texture_dimension, texture_dimension}},
+        {{SIZE, -SIZE, SIZE},    {0.0f, texture_dimension}},            
+        {{-SIZE, SIZE, SIZE},     {texture_dimension, 0.0f}},            
+        {{SIZE, SIZE, SIZE},     {0.0f, 0.0f}},
     };
-    memcpy(vertices, temp_vertices, 8 * sizeof(Vec3));
+    memcpy(vertices, temp_vertices, 8 * sizeof(TexVertex));
 
-    TexVertex* projected_points = malloc(8 * sizeof(TexVertex));
-    if (!projected_points) {
-        fprintf(stderr, "Memory allocation failed for projected_points\n");
-        free(vertices); // Free previously allocated memory
-        exit(1); // Or handle the error as needed
-    }
-
-    TexVertex temp_projected_points[8] = {
-        {{-SIZE, -SIZE}, {0.0f, texture_dimension}},
-        {{SIZE, -SIZE},  {texture_dimension, texture_dimension}},
-        {{-SIZE, SIZE},  {0.0f, 0.0f}},
-        {{SIZE, SIZE},   {texture_dimension, 0.0f}},
-        {{-SIZE, -SIZE},  {texture_dimension, texture_dimension}},
-        {{SIZE, -SIZE},   {0.0f, texture_dimension}},
-        {{-SIZE, SIZE},   {texture_dimension, 0.0f}},
-        {{SIZE, SIZE},    {0.0f, 0.0f}},
-    };
-    memcpy(projected_points, temp_projected_points, 8 * sizeof(TexVertex));
 
     Vec2* edges = malloc(12 * sizeof(Vec2));
     if (!edges) {
         fprintf(stderr, "Memory allocation failed for edges\n");
         free(vertices); // Free previously allocated memory
-        free(projected_points);
-        exit(1); // Or handle the error as needed
+        exit(1);
     }
 
     Vec2 temp_edges[12] = {
@@ -64,9 +45,8 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
     if (!indices) {
         fprintf(stderr, "Memory allocation failed for indices\n");
         free(vertices); // Free previously allocated memory
-        free(projected_points);
         free(edges);
-        exit(1); // Or handle the error as needed
+        exit(1);
     }
 
     Vec3 temp_indices[12] = {
@@ -83,10 +63,9 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
     if (!cullFlags) {
         fprintf(stderr, "Memory allocation failed for cullFlags\n");
         free(vertices); // Free previously allocated memory
-        free(projected_points);
         free(edges);
         free(indices);
-        exit(1); // Or handle the error as needed
+        exit(1);
     }
     memset(cullFlags, 0, 12 * sizeof(bool)); // Initialize to false
 
@@ -100,17 +79,15 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
     if (!*texture) {
         fprintf(stderr, "Unable to load image! SDL_Error: %s\n", SDL_GetError());
         free(vertices); // Free previously allocated memory
-        free(projected_points);
         free(edges);
         free(indices);
         free(cullFlags);
-        exit(1); // Or handle the error as needed
+        exit(1);
     }
 
     Scene cube = {
         wireframe, textured,
         vertices,
-        projected_points,
         edges,
         indices,
         cullFlags,
@@ -125,12 +102,12 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
 }
 
 void restart_cube(Scene* scene) {
-    scene->vertices[0].x = -SIZE; scene->vertices[0].y = -SIZE; scene->vertices[0].z = -SIZE;
-    scene->vertices[1].x = SIZE;  scene->vertices[1].y = -SIZE; scene->vertices[1].z = -SIZE;
-    scene->vertices[2].x = -SIZE; scene->vertices[2].y = SIZE;  scene->vertices[2].z = -SIZE;
-    scene->vertices[3].x = SIZE;  scene->vertices[3].y = SIZE;  scene->vertices[3].z = -SIZE;
-    scene->vertices[4].x = -SIZE; scene->vertices[4].y = -SIZE; scene->vertices[4].z = SIZE;
-    scene->vertices[5].x = SIZE;  scene->vertices[5].y = -SIZE; scene->vertices[5].z = SIZE;
-    scene->vertices[6].x = -SIZE; scene->vertices[6].y = SIZE;  scene->vertices[6].z = SIZE;
-    scene->vertices[7].x = SIZE;  scene->vertices[7].y = SIZE;  scene->vertices[7].z = SIZE;
+    scene->vertices[0].pos.x = -SIZE; scene->vertices[0].pos.y = -SIZE; scene->vertices[0].pos.z = -SIZE;
+    scene->vertices[1].pos.x = SIZE;  scene->vertices[1].pos.y = -SIZE; scene->vertices[1].pos.z = -SIZE;
+    scene->vertices[2].pos.x = -SIZE; scene->vertices[2].pos.y = SIZE;  scene->vertices[2].pos.z = -SIZE;
+    scene->vertices[3].pos.x = SIZE;  scene->vertices[3].pos.y = SIZE;  scene->vertices[3].pos.z = -SIZE;
+    scene->vertices[4].pos.x = -SIZE; scene->vertices[4].pos.y = -SIZE; scene->vertices[4].pos.z = SIZE;
+    scene->vertices[5].pos.x = SIZE;  scene->vertices[5].pos.y = -SIZE; scene->vertices[5].pos.z = SIZE;
+    scene->vertices[6].pos.x = -SIZE; scene->vertices[6].pos.y = SIZE;  scene->vertices[6].pos.z = SIZE;
+    scene->vertices[7].pos.x = SIZE;  scene->vertices[7].pos.y = SIZE;  scene->vertices[7].pos.z = SIZE;
 }
