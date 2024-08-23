@@ -1,8 +1,8 @@
 #ifndef LOOP_H
 #define LOOP_H
 
-#include "./constants.h"
-#include "./scene.h"
+#include "constants.h"
+#include "scene.h"
 
 #include <stdio.h>
 #include <stdbool.h>

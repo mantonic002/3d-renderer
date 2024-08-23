@@ -3,7 +3,7 @@
 
 #include "vec2.h"
 #include "vec3.h"
-#include "tex_vertex.h"
+#include "vertex.h"
 #include "constants.h"
 
 #include <stdio.h>
@@ -12,13 +12,8 @@
 #include <SDL2/SDL_image.h>
 
 typedef struct Scene {
-    bool wireframe;
-    bool textured;
-    Vec3* vertices;
-    TexVertex* projected_points;
-    Vec2* edges;
+    Vertex* vertices;
     Vec3* indices;
-    bool* cullFlags;
     float angle_x;
     float angle_y;
     float angle_z;

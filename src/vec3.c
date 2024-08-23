@@ -33,3 +33,30 @@ Vec3 vec3_interpolate (const Vec3* v1, const Vec3* v2, const float alpha) {
     };
     return result;
 }
+
+Vec3 vec3_add (const Vec3* v1, const Vec3* v2) {
+    Vec3 result = { 
+        v1->x + v2->x,
+        v1->y + v2->y,
+        v1->z + v2->z,
+    };
+    return result;
+}
+
+Vec3 vec3_divide (const Vec3* v, float scalar) {
+    Vec3 result = { 
+        v->x/scalar,
+        v->y/scalar,
+        v->z/scalar,
+    };
+    return result;
+}
+
+Vec3 vec3_multiply (const Vec3* v, float scalar) {
+    Vec3 result = { 
+        v->x*scalar,
+        v->y*scalar,
+        v->z*scalar,
+    };
+    return result;
+}
