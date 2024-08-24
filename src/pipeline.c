@@ -16,14 +16,7 @@ void pipeline_bind_translation(Pipeline* p, const Vec3* translationIn) {
     p->translation = *translationIn;
 }
 
-void pipeline_bind_texture(Pipeline* p, const char* filename) {
-    SDL_Surface* texture = IMG_Load("res/texture.png");
-    if (!texture) {
-        fprintf(stderr, "Unable to load image! SDL_Error: %s\n", SDL_GetError());
-        exit(1);
-    }
-    p->texture = texture;
-}
+
 
 void pipeline_bind_renderer(Pipeline* p, SDL_Renderer** renderer) {
     p->renderer = renderer;
@@ -164,15 +157,6 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
     temp = vertex_multiply(dv2, ((float)yStart + 0.5f - v1->pos.y));
     *itEdge2 = vertex_add(itEdge2, &temp);
 
-    SDL_Surface* s = p->texture;
-    // init texture w/h and clamp values
-    const float tex_width = (float)s->w;
-    const float tex_height = (float)s->h;
-    const float tex_clamp_x = tex_width - 1.0f;
-    const float tex_clamp_y = tex_height - 1.0f;
-
-    Uint8 r, g, b, a;
-
     for (int y = yStart; y < yEnd; y++,
             itEdge1 = vertex_add(&itEdge1, dv1),
             *itEdge2 = vertex_add(itEdge2, dv2)) 
@@ -191,12 +175,10 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
         Vertex diLine = vertex_divide(&temp, dx);
 
         for (int x = xStart; x < xEnd; x++, iLine = vertex_add(&iLine, &diLine)) {
-            // texture lookup, clamp and draw pixel
-            get_pixel_rgba( p->texture, 
-                            fmin(iLine.tc.x * tex_width, tex_clamp_x),
-                            fmin(iLine.tc.y * tex_height, tex_clamp_y),
-                            &r, &g, &b, &a);
-            SDL_SetRenderDrawColor(*p->renderer, r, g, b, a);
+            SDL_Color c;
+            // texture lookup and clamp with pixel shader and returned draw pixel
+            c = p->pixel_shader->shade(p->pixel_shader, &iLine);
+            SDL_SetRenderDrawColor(*p->renderer, c.r, c.g, c.b, c.a);
             SDL_RenderDrawPoint(*p->renderer, x, y);
         }
     }

@@ -34,11 +34,13 @@ void render(SDL_Renderer** renderer, Scene* scene) {
 
     Vec3 trans = {0.0f, 0.0f, scene->z_offset};
 
+    PixelShader* shader = create_pixel_shader("res/texture.png");
+
     Pipeline p;
     p.renderer = renderer;
     p.translation = trans;
+    p.pixel_shader = shader;
     pipeline_bind_rotation(&p, rotation);
-    pipeline_bind_texture(&p, "res/texture.png");
 
     IndexedTriangleList i = {
         scene->vertices,
