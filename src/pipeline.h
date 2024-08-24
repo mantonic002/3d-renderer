@@ -4,6 +4,7 @@
 #include "indexed_triangle_list.h"
 #include "constants.h"
 #include "triangle.h"
+#include "shader.h"
 #include "helper.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -11,7 +12,7 @@
 typedef struct Pipeline {
     float rotation[3][3];  //rotation is 2d array representing a 3x3 matrix
     Vec3 translation;
-    SDL_Surface* texture;
+    PixelShader* pixel_shader;
     SDL_Renderer** renderer;
 } Pipeline;
 
