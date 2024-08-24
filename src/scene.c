@@ -1,6 +1,6 @@
 #include "scene.h"
 
-Scene make_cube(SDL_Surface** texture, float texture_dimension) {
+Scene make_cube(float texture_dimension) {
     // vertices of a cube
     Vertex* vertices = malloc(8 * sizeof(Vertex));
     if (!vertices) {
@@ -43,14 +43,6 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
 
     float z_offset = 3;
 
-    *texture = IMG_Load("res/texture.png");
-    if (!*texture) {
-        fprintf(stderr, "Unable to load image! SDL_Error: %s\n", SDL_GetError());
-        free(vertices); // Free previously allocated memory
-        free(indices);
-        exit(1);
-    }
-
     Scene cube = {
         vertices,
         indices,
@@ -58,7 +50,6 @@ Scene make_cube(SDL_Surface** texture, float texture_dimension) {
         angle_y,
         angle_z,
         z_offset,
-        *texture,
     };
 
     return cube;

@@ -18,10 +18,9 @@ typedef struct Scene {
     float angle_y;
     float angle_z;
     float z_offset;
-    SDL_Surface* texture;
 } Scene;
 
-Scene make_cube(SDL_Surface** texture, float texture_dimension);
+Scene make_cube(float texture_dimension);
 void restart_cube(Scene* scene);
 
 #endif

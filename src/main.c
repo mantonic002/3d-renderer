@@ -17,13 +17,11 @@ int main() {
 
     bool keys[SDL_NUM_SCANCODES] = { false };
 
-    SDL_Surface* textureFromPng = NULL;
-
     game_is_running = initialize_window(&window, &renderer);
 
     setup(&window, &renderer);
 
-    Scene cube = make_cube(&textureFromPng, 1.0f);
+    Scene cube = make_cube(1.0f);
 
     while (game_is_running) {
         if (!process_input(keys, &delta_time, &cube)) game_is_running = false;

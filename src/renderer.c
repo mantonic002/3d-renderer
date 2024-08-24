@@ -6,6 +6,7 @@ void render(SDL_Renderer** renderer, Scene* scene) {
 
     SDL_SetRenderDrawColor(*renderer, 255, 255, 255, 255);
 
+    // TODO: Pipeline and all it's fields are being created every frame as is, needs to be moved
     // rotation matrices
     float rotation_matrix_z[3][3] = {
         {cos(scene->angle_z), -sin(scene->angle_z), 0},

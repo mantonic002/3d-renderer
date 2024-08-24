@@ -12,17 +12,6 @@ void pipeline_bind_rotation(Pipeline* p, const float rotationIn[3][3]) {
     }
 }
 
-void pipeline_bind_translation(Pipeline* p, const Vec3* translationIn) {
-    p->translation = *translationIn;
-}
-
-
-
-void pipeline_bind_renderer(Pipeline* p, SDL_Renderer** renderer) {
-    p->renderer = renderer;
-}
-
-
 void process_vertices (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI) {
     Vertex verticesOut[sizeV];
 

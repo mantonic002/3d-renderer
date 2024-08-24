@@ -18,7 +18,6 @@ typedef struct Pipeline {
 
 void pipeline_draw(Pipeline* p, IndexedTriangleList* triList);
 void pipeline_bind_rotation(Pipeline* p, const float rotationIn[3][3]); //rotationIn is 3x3 array representing a 3x3 matrix
-void pipeline_bind_texture(Pipeline* p, const char* filename);
 
 void process_vertices (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI);
 void assemble_triangles (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI);
