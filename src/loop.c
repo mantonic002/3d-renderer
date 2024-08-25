@@ -41,7 +41,7 @@ void setup(SDL_Window** window, SDL_Renderer** renderer) {
 
 }
 
-int process_input(bool* keys, float* delta_time, Scene* scene) {
+int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size, int* curr_scene) {
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
@@ -52,7 +52,10 @@ int process_input(bool* keys, float* delta_time, Scene* scene) {
 
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE)
-            return false;
+                return false;
+            else if (event.key.keysym.sym == SDLK_TAB) {
+                *curr_scene = (*curr_scene + 1)  % scenes_size;
+            }
             else
                 keys[event.key.keysym.scancode] = true;
             break;
@@ -68,26 +71,35 @@ int process_input(bool* keys, float* delta_time, Scene* scene) {
 
     // Update angles based on key states
     if (keys[SDL_SCANCODE_X])
-        scene->angle_x += 0.02f;
+        scenes[*curr_scene].angle_x += 0.02f;
     if (keys[SDL_SCANCODE_Y])
-        scene->angle_y += 0.02f;
+        scenes[*curr_scene].angle_y += 0.02f;
     if (keys[SDL_SCANCODE_Z])
-        scene->angle_z += 0.02f;
+        scenes[*curr_scene].angle_z += 0.02f;
 
     // move the cube closer or further away with arrow keys
-    if (keys[SDL_SCANCODE_UP] && scene->z_offset >= 2 && scene->z_offset < 19.9f)
+    if (keys[SDL_SCANCODE_UP] && scenes[*curr_scene].z_offset >= 2 && scenes[*curr_scene].z_offset < 19.9f)
     {
-        scene->z_offset += 0.1f;
+        scenes[*curr_scene].z_offset += 0.1f;
     }
 
-    if (keys[SDL_SCANCODE_DOWN] && scene->z_offset > 2.1f && scene->z_offset <= 20)
+    if (keys[SDL_SCANCODE_DOWN] && scenes[*curr_scene].z_offset > 2.1f && scenes[*curr_scene].z_offset <= 20)
     {
-        scene->z_offset -= 0.1f;
+        scenes[*curr_scene].z_offset -= 0.1f;
     }
+
+
+    //check if rotation angles are more than 2pi and return them to zero if they are
+    if (scenes[*curr_scene].angle_x >= 2*PI)
+        scenes[*curr_scene].angle_x = 0;
+    if (scenes[*curr_scene].angle_y >= 2*PI)
+        scenes[*curr_scene].angle_y = 0;
+    if (scenes[*curr_scene].angle_z >= 2*PI)
+        scenes[*curr_scene].angle_z = 0;
     return true;
 }
 
-void update(int *last_frame_time, float *delta_time, Scene* scene) {
+void update(int *last_frame_time, float *delta_time) {
     // delaying to keep the constant frame rate
     int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - *last_frame_time);
     
@@ -100,13 +112,6 @@ void update(int *last_frame_time, float *delta_time, Scene* scene) {
 
     *last_frame_time = SDL_GetTicks();
 
-    //check if rotation angles are more than 2pi and return them to zero if they are
-    if (scene->angle_x >= 2*PI)
-        scene->angle_x = 0;
-    if (scene->angle_y >= 2*PI)
-        scene->angle_y = 0;
-    if (scene->angle_z >= 2*PI)
-        scene->angle_z = 0;
 }
 
 void destroy_window(SDL_Window** window, SDL_Renderer** renderer) {
