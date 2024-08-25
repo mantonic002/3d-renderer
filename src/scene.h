@@ -5,6 +5,7 @@
 #include "vec3.h"
 #include "vertex.h"
 #include "constants.h"
+#include "pipeline.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -12,15 +13,19 @@
 #include <SDL2/SDL_image.h>
 
 typedef struct Scene {
-    Vertex* vertices;
-    Vec3* indices;
+    IndexedTriangleList* triList;
     float angle_x;
     float angle_y;
     float angle_z;
     float z_offset;
+    Pipeline* pipeline;
 } Scene;
 
-Scene make_cube(float texture_dimension);
-void restart_cube(Scene* scene);
+Scene make_scene(SDL_Renderer** renderer, const char* filename);
+void scene_draw(Scene* scene, SDL_Renderer** renderer);
+void cube_init_triangle_list(Scene* scene, float texture_dimension);
+void cube_init_triangle_list_skinned(Scene* scene);
+
+Vec2 convert_tex_coord(float u, float v);
 
 #endif

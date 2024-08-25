@@ -1,67 +1,80 @@
 #include "scene.h"
 
-Scene make_cube(float texture_dimension) {
-    // vertices of a cube
-    Vertex* vertices = malloc(8 * sizeof(Vertex));
-    if (!vertices) {
-        fprintf(stderr, "Memory allocation failed for vertices\n");
+Scene make_scene(SDL_Renderer** renderer, const char* filename) {
+    // make pixel shader
+    PixelShader* pixel_shader = create_pixel_shader(filename);
+    if (!pixel_shader) {
+        fprintf(stderr, "Failed to create pixel shader\n");
         exit(1);
     }
 
-    Vertex temp_vertices[8] = {
-        {{-SIZE, -SIZE, -SIZE},  {0.0f, texture_dimension}},            
-        {{SIZE, -SIZE, -SIZE},   {texture_dimension, texture_dimension}},
-        {{-SIZE, SIZE, -SIZE},   {0.0f, 0.0f}},
-        {{SIZE, SIZE, -SIZE},    {texture_dimension, 0.0f}},            
-        {{-SIZE, -SIZE, SIZE},   {texture_dimension, texture_dimension}},
-        {{SIZE, -SIZE, SIZE},    {0.0f, texture_dimension}},            
-        {{-SIZE, SIZE, SIZE},     {texture_dimension, 0.0f}},            
-        {{SIZE, SIZE, SIZE},     {0.0f, 0.0f}},
-    };
-    memcpy(vertices, temp_vertices, 8 * sizeof(Vertex));
-
-    Vec3* indices = malloc(12 * sizeof(Vec3));
-    if (!indices) {
-        fprintf(stderr, "Memory allocation failed for indices\n");
-        free(vertices); // Free previously allocated memory
+    // make pipeline
+    Pipeline* pipeline = malloc(sizeof(Pipeline));
+    if (!pipeline) {
+        fprintf(stderr, "Memory allocation failed for Pipeline\n");
+        free(pixel_shader);
         exit(1);
     }
+    pipeline->renderer = renderer;
+    pipeline->pixel_shader = pixel_shader;
 
-    Vec3 temp_indices[12] = {
-        {0, 2, 1}, {2, 3, 1},
-        {1, 3, 5}, {3, 7, 5},
-        {2, 6, 3}, {3, 6, 7},
-        {7, 4, 5}, {4, 7, 6},
-        {0, 4, 2}, {2, 4, 6},
-        {0, 1, 4}, {1, 5, 4},
-    };
-    memcpy(indices, temp_indices, 12 * sizeof(Vec3));
-
+    // transformation variables
     float angle_x = 0;
     float angle_y = 0;
     float angle_z = 0;
-
     float z_offset = 3;
 
-    Scene cube = {
-        vertices,
-        indices,
+    Scene scene = {
+        NULL,
         angle_x,
         angle_y,
         angle_z,
         z_offset,
+        pipeline,
     };
 
-    return cube;
+    return scene;
 }
 
-void restart_cube(Scene* scene) {
-    scene->vertices[0].pos.x = -SIZE; scene->vertices[0].pos.y = -SIZE; scene->vertices[0].pos.z = -SIZE;
-    scene->vertices[1].pos.x = SIZE;  scene->vertices[1].pos.y = -SIZE; scene->vertices[1].pos.z = -SIZE;
-    scene->vertices[2].pos.x = -SIZE; scene->vertices[2].pos.y = SIZE;  scene->vertices[2].pos.z = -SIZE;
-    scene->vertices[3].pos.x = SIZE;  scene->vertices[3].pos.y = SIZE;  scene->vertices[3].pos.z = -SIZE;
-    scene->vertices[4].pos.x = -SIZE; scene->vertices[4].pos.y = -SIZE; scene->vertices[4].pos.z = SIZE;
-    scene->vertices[5].pos.x = SIZE;  scene->vertices[5].pos.y = -SIZE; scene->vertices[5].pos.z = SIZE;
-    scene->vertices[6].pos.x = -SIZE; scene->vertices[6].pos.y = SIZE;  scene->vertices[6].pos.z = SIZE;
-    scene->vertices[7].pos.x = SIZE;  scene->vertices[7].pos.y = SIZE;  scene->vertices[7].pos.z = SIZE;
+
+void scene_draw(Scene* scene, SDL_Renderer** renderer) {
+    if (!scene || !scene->pipeline) {
+        fprintf(stderr, "Scene or pipeline is NULL\n");
+        return;
+    }
+
+    // rotation matrices for each axis
+    float rotation_matrix_z[3][3] = {
+        {cos(scene->angle_z), -sin(scene->angle_z), 0},
+        {sin(scene->angle_z), cos(scene->angle_z), 0},
+        {0, 0, 1},
+    };
+
+    float rotation_matrix_y[3][3] = {
+        {cos(scene->angle_y), 0, sin(scene->angle_y)},
+        {0, 1, 0},
+        {-sin(scene->angle_y), 0, cos(scene->angle_y)},
+    };
+
+    float rotation_matrix_x[3][3] = {
+        {1, 0, 0},
+        {0, cos(scene->angle_x), -sin(scene->angle_x)},
+        {0, sin(scene->angle_x), cos(scene->angle_x)},
+    };
+
+    // multiply all 3 rotation matrices to get a final rotation matrix
+    float temp[3][3];
+    multiply_matrices(rotation_matrix_x, rotation_matrix_y, temp);
+    float rotation[3][3];
+    multiply_matrices(temp, rotation_matrix_z, rotation);
+
+    // get translation
+    Vec3 trans = {0.0f, 0.0f, scene->z_offset};
+
+    // set pipeline transform
+    scene->pipeline->translation = trans;
+    pipeline_bind_rotation(scene->pipeline, rotation);
+
+    // render triangles
+    pipeline_draw(scene->pipeline, scene->triList);
 }
