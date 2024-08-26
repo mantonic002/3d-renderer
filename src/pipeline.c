@@ -52,9 +52,9 @@ void process_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Ve
 }
 
 void post_process_triangle (Pipeline* p, Triangle* triangle) {
-    transform(&triangle->v1.pos);
-    transform(&triangle->v2.pos);
-    transform(&triangle->v3.pos);
+    transform(&triangle->v1);
+    transform(&triangle->v2);
+    transform(&triangle->v3);
 
     draw_triangle(p, triangle);
 }
@@ -146,6 +146,7 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
     temp = vertex_multiply(dv2, ((float)yStart + 0.5f - v1->pos.y));
     *itEdge2 = vertex_add(itEdge2, &temp);
 
+    SDL_Color c;
     for (int y = yStart; y < yEnd; y++,
             itEdge1 = vertex_add(&itEdge1, dv1),
             *itEdge2 = vertex_add(itEdge2, dv2)) 
@@ -164,32 +165,31 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
         Vertex diLine = vertex_divide(&temp, dx);
 
         for (int x = xStart; x < xEnd; x++, iLine = vertex_add(&iLine, &diLine)) {
-            SDL_Color c;
+            // recover interpolated z from interpolated zInv
+            float z = 1.0f / iLine.pos.z;
+            // recover interpolated atributes
+            Vertex attr = vertex_multiply(&iLine, z);
+
             // texture lookup and clamp with pixel shader and returned draw pixel
-            c = p->pixel_shader->shade(p->pixel_shader, &iLine);
+            c = p->pixel_shader->shade(p->pixel_shader, &attr);
+
             SDL_SetRenderDrawColor(*p->renderer, c.r, c.g, c.b, c.a);
             SDL_RenderDrawPoint(*p->renderer, x, y);
         }
     }
 }
 
+// transformation from object space to screen space
+void transform (Vertex* v) {   
+        float zInv = 1.0f / v->pos.z;
 
-void transform (Vec3* v) {        
-        float projection_matrix[3][3] = {
-            {1, 0, 0},
-            {0, 1, 0},
-            {0, 0, 1},
-        };
+        // dividing all components of vertex by z, including texture coordinates
+        *v = vertex_multiply(v, zInv);
 
-        Vec3 curr = *v;
-        
-        float zInv = 1.0f / curr.z;
-        curr.x = curr.x*zInv;
-        curr.y = -curr.y*zInv;
+        // adjust x and y with window width and scale
+        v->pos.x = WINDOW_WIDTH/2 + v->pos.x * SCALE;
+        v->pos.y = WINDOW_HEIGHT/2 + v->pos.y * SCALE;
 
-        Vec3 projection;
-        multiplyMatrixByPoint(projection_matrix, &curr, &projection);
-
-        v->x = WINDOW_WIDTH/2 + curr.x * SCALE;
-        v->y = WINDOW_HEIGHT/2 + curr.y * SCALE;
+        // store zInv because everything was divided by z including z itself.
+        v->pos.z = zInv;
 }

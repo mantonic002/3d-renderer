@@ -21,6 +21,7 @@ int main() {
 
     setup(&window, &renderer);
 
+    // initialize scenes
     Scene cube = make_scene(&renderer, "res/texture.png");
     cube_init_triangle_list(&cube, 1.0f);
 

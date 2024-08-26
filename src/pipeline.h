@@ -28,6 +28,6 @@ void draw_flat_top_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, co
 void draw_flat_bottom_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Vertex* v3);
 void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Vertex* v3, const Vertex* dv1, const Vertex* dv2, Vertex* itEdge2);
 
-void transform(Vec3* v);
+void transform(Vertex* v);
 
 #endif
