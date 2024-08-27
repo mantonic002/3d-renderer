@@ -12,6 +12,10 @@ void pipeline_bind_rotation(Pipeline* p, const float rotationIn[3][3]) {
     }
 }
 
+void pipeline_begin_frame(Pipeline* p) {
+    z_buffer_clear(p->zb);
+}
+
 void process_vertices (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI) {
     Vertex verticesOut[sizeV];
 
@@ -167,14 +171,16 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
         for (int x = xStart; x < xEnd; x++, iLine = vertex_add(&iLine, &diLine)) {
             // recover interpolated z from interpolated zInv
             float z = 1.0f / iLine.pos.z;
-            // recover interpolated atributes
-            Vertex attr = vertex_multiply(&iLine, z);
+            if (z_buffer_test_and_set(p->zb, x, y, z)){            
+                // recover interpolated atributes
+                Vertex attr = vertex_multiply(&iLine, z);
 
-            // texture lookup and clamp with pixel shader and returned draw pixel
-            c = p->pixel_shader->shade(p->pixel_shader, &attr);
+                // texture lookup and clamp with pixel shader and returned draw pixel
+                c = p->pixel_shader->shade(p->pixel_shader, &attr);
 
-            SDL_SetRenderDrawColor(*p->renderer, c.r, c.g, c.b, c.a);
-            SDL_RenderDrawPoint(*p->renderer, x, y);
+                SDL_SetRenderDrawColor(*p->renderer, c.r, c.g, c.b, c.a);
+                SDL_RenderDrawPoint(*p->renderer, x, y);
+            }
         }
     }
 }

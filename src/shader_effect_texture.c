@@ -25,7 +25,7 @@ void pixel_shader_bind_texture(PixelShader* p, const char* filename) {
     p->tex_clamp_y = p->tex_height - 1.0f;
 }
 
-PixelShader* create_pixel_shader(const char* filename) {
+PixelShader* create_pixel_shader_texture(const char* filename) {
     PixelShader* ps = (PixelShader*)malloc(sizeof(PixelShader));
     if (ps) {
         pixel_shader_bind_texture(ps, filename);

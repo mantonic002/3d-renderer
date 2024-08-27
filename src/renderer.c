@@ -6,7 +6,7 @@ void render(SDL_Renderer** renderer, Scene* scene) {
 
     SDL_SetRenderDrawColor(*renderer, 255, 255, 255, 255);
 
-    scene_draw(scene, renderer);
+    scene->draw(scene, renderer);
 
     SDL_RenderPresent(*renderer);
 }
