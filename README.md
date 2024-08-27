@@ -12,11 +12,16 @@ This repository contains a simple renderer written in C using SDL2 library for v
 
 - Cube can be moved further away or closer by pressing &#8593; or &#8595;
 
-- Wireframe mode can be enabled and disabled by pressing ```W```.
+- Scenes can be changed by pressing ```TAB```.
+  
+- Currently there are 3 scenes:
+  - Textured cube
+  - Skinned cube with texture wrapped around the cube
+  - Two skinned cubes rotating in oposite directions where one can be moved
+    
 
-- Textures can be enabled and disabled by pressing ```T```.
+[Screencast from 2024-08-27 14-54-32.webm](https://github.com/user-attachments/assets/f5faf72c-4683-4e53-b47d-01622db48490)
 
-[Screencast from 2024-08-21 03-02-25.webm](https://github.com/user-attachments/assets/b28b6a5d-cdcc-4877-a3b5-ae6154a375af)
 
 ### How to Use
 
