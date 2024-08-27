@@ -23,20 +23,27 @@ int main() {
 
     // initialize scenes
     Scene cube = make_scene(&renderer, "res/texture.png");
+    cube.draw = scene_cube_draw;
     cube_init_triangle_list(&cube, 1.0f);
 
     Scene cube_skinned = make_scene(&renderer, "res/dice_skin.png");
+    cube_skinned.draw = scene_cube_draw;
     cube_init_triangle_list_skinned(&cube_skinned);
 
-    Scene scenes[2] = {
+    Scene double_cube = make_scene(&renderer, "res/dice_skin.png");
+    double_cube.draw = scene_double_cube_draw;
+    cube_init_triangle_list_skinned(&double_cube);
+
+    Scene scenes[3] = {
         cube,
-        cube_skinned
+        cube_skinned,
+        double_cube,
     };
 
     int curr_scene = 0;
 
     while (game_is_running) {
-        if (!process_input(keys, &delta_time, scenes, 2, &curr_scene)) game_is_running = false;
+        if (!process_input(keys, &delta_time, scenes, 3, &curr_scene)) game_is_running = false;
         update(&last_frame_time, &delta_time);
         render(&renderer, &scenes[curr_scene]);
     }

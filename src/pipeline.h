@@ -6,6 +6,7 @@
 #include "triangle.h"
 #include "shader.h"
 #include "helper.h"
+#include "z_buffer.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
@@ -14,10 +15,12 @@ typedef struct Pipeline {
     Vec3 translation;
     PixelShader* pixel_shader;
     SDL_Renderer** renderer;
+    ZBuffer* zb;
 } Pipeline;
 
 void pipeline_draw(Pipeline* p, IndexedTriangleList* triList);
 void pipeline_bind_rotation(Pipeline* p, const float rotationIn[3][3]); //rotationIn is 3x3 array representing a 3x3 matrix
+void pipeline_begin_frame(Pipeline* p);
 
 void process_vertices (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI);
 void assemble_triangles (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI);
