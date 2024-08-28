@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "pixel_shader.h"
 
 SDL_Color shader_effect_texture(PixelShader* ps, Vertex* vertex) {
     SDL_Color c;

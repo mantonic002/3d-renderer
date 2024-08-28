@@ -4,14 +4,6 @@ void pipeline_draw(Pipeline* p, IndexedTriangleList* triList) {
     process_vertices (p, triList->vertices, triList->sizeV, triList->indices, triList->sizeI);
 }
 
-void pipeline_bind_rotation(Pipeline* p, const float rotationIn[3][3]) {
-    for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < 3; j++) {
-            p->rotation[i][j] = rotationIn[i][j];
-        }
-    }
-}
-
 void pipeline_begin_frame(Pipeline* p) {
     z_buffer_clear(p->zb);
 }
@@ -19,14 +11,8 @@ void pipeline_begin_frame(Pipeline* p) {
 void process_vertices (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI) {
     Vertex verticesOut[sizeV];
 
-    Vec3 multiplied;
     for (int i = 0; i < sizeV; i++) {
-        multiplyMatrixByPoint(p->rotation, &vertices[i].pos, &multiplied);
-        Vertex vertexOut = {
-            vec3_add(&multiplied, &p->translation),
-            vertices[i].tc,
-        };
-        verticesOut[i] = vertexOut;
+        verticesOut[i] = default_vertex_shader_apply(p->vertex_shader, &vertices[i]);
     }
 
     assemble_triangles(p, verticesOut, sizeV, indices, sizeI);

@@ -32,9 +32,8 @@ void scene_double_cube_draw(Scene* scene, SDL_Renderer** renderer){
         // get translation
         Vec3 trans = {0.0f, 0.0f, 5.0f};
 
-        // set pipeline transform
-        scene->pipeline->translation = trans;
-        pipeline_bind_rotation(scene->pipeline, rotation);
+        // set pipeline vertex shader
+        scene->pipeline->vertex_shader =  create_default_vertex_shader(rotation, &trans);
 
         // render triangles
         pipeline_draw(scene->pipeline, scene->triList);
@@ -68,9 +67,8 @@ void scene_double_cube_draw(Scene* scene, SDL_Renderer** renderer){
         // get translation
         Vec3 trans = {0.0f, 0.0f, scene->z_offset};
 
-        // set pipeline transform
-        scene->pipeline->translation = trans;
-        pipeline_bind_rotation(scene->pipeline, rotation);
+        // set pipeline vertex shader
+        scene->pipeline->vertex_shader =  create_default_vertex_shader(rotation, &trans);
 
         // render triangles
         pipeline_draw(scene->pipeline, scene->triList);
