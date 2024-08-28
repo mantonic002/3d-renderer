@@ -4,22 +4,21 @@
 #include "indexed_triangle_list.h"
 #include "constants.h"
 #include "triangle.h"
-#include "shader.h"
+#include "pixel_shader.h"
+#include "vertex_shader.h"
 #include "helper.h"
 #include "z_buffer.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 typedef struct Pipeline {
-    float rotation[3][3];  //rotation is 2d array representing a 3x3 matrix
-    Vec3 translation;
+    VertexShader* vertex_shader;
     PixelShader* pixel_shader;
     SDL_Renderer** renderer;
     ZBuffer* zb;
 } Pipeline;
 
 void pipeline_draw(Pipeline* p, IndexedTriangleList* triList);
-void pipeline_bind_rotation(Pipeline* p, const float rotationIn[3][3]); //rotationIn is 3x3 array representing a 3x3 matrix
 void pipeline_begin_frame(Pipeline* p);
 
 void process_vertices (Pipeline* p, const Vertex* vertices, int sizeV, const Vec3* indices, int sizeI);
