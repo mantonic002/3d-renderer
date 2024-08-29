@@ -12,7 +12,7 @@ void process_vertices (Pipeline* p, const Vertex* vertices, int sizeV, const Vec
     Vertex verticesOut[sizeV];
 
     for (int i = 0; i < sizeV; i++) {
-        verticesOut[i] = default_vertex_shader_apply(p->vertex_shader, &vertices[i]);
+        verticesOut[i] = p->vertex_shader->apply(p->vertex_shader, &vertices[i]);
     }
 
     assemble_triangles(p, verticesOut, sizeV, indices, sizeI);
@@ -29,15 +29,13 @@ void assemble_triangles (Pipeline* p, const Vertex* vertices, int sizeV, const V
         Vec3 v3_sub_v1 = vec3_subtract(&v3.pos, &v1.pos);
         Vec3 n = cross_product(&v2_sub_v1, &v3_sub_v1);
         if (dot_product(&n, &v1.pos) <= 0.0f) {
-            process_triangle(p, &v1, &v2, &v3);
+            process_triangle(p, &v1, &v2, &v3, i);
         }
     }
 }
 
-void process_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Vertex* v3) {
-    Triangle t = {
-        *v1, *v2, *v3
-    };
+void process_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Vertex* v3, int triangle_index) {
+    Triangle t = p->geometry_shader->shade(p->geometry_shader, v1, v2, v3, triangle_index);
     post_process_triangle(p, &t);
 }
 
