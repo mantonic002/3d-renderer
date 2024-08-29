@@ -8,14 +8,24 @@ Scene make_scene(SDL_Renderer** renderer, const char* filename) {
         exit(1);
     }
 
+    // make geometry shader
+    GeometryShader* geometry_shader = create_default_geometry_shader();
+    if (!geometry_shader) {
+        fprintf(stderr, "Failed to create geometry shader\n");
+        free(pixel_shader);
+        exit(1);
+    }
+
     // make pipeline
     Pipeline* pipeline = malloc(sizeof(Pipeline));
     if (!pipeline) {
         fprintf(stderr, "Memory allocation failed for Pipeline\n");
+        free(geometry_shader);
         free(pixel_shader);
         exit(1);
     }
     pipeline->renderer = renderer;
+    pipeline->geometry_shader = geometry_shader;
     pipeline->pixel_shader = pixel_shader;
     pipeline->zb = z_buffer_init(WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -31,6 +41,7 @@ Scene make_scene(SDL_Renderer** renderer, const char* filename) {
         angle_y,
         angle_z,
         z_offset,
+        0.0f,
         pipeline,
     };
 

@@ -35,7 +35,7 @@ void get_pixel_rgba(SDL_Surface* surface, int x, int y, Uint8* r, Uint8* g, Uint
     SDL_GetRGBA(pixel_value, surface->format, r, g, b, a);
 }
 
-void multiplyMatrixByPoint(const float matrix[3][3], const Vec3* point, Vec3* result) {
+void multiply_matrix_by_point(const float matrix[3][3], const Vec3* point, Vec3* result) {
     result->x = (point->x * matrix[0][0]) + (point->y * matrix[1][0]) + (point->z * matrix[2][0]);
     result->y = (point->x * matrix[0][1]) + (point->y * matrix[1][1]) + (point->z * matrix[2][1]);
     result->z = (point->x * matrix[0][2]) + (point->y * matrix[1][2]) + (point->z * matrix[2][2]);

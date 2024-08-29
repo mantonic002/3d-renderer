@@ -4,8 +4,6 @@
 #include "loop.h"
 #include "helper.h"
 #include "scene.h"
-#include "renderer.h"
-
 
 int main() {
     bool game_is_running = false;
@@ -34,16 +32,21 @@ int main() {
     double_cube.draw = scene_double_cube_draw;
     cube_init_triangle_list_skinned(&double_cube);
 
-    Scene scenes[3] = {
+    Scene wave_plane = make_scene(&renderer, "res/texture.png");
+    wave_plane.draw = scene_plane_draw;
+    plane_init_triangle_list_skinned(&wave_plane, 20, 3.0f);
+
+    Scene scenes[4] = {
         cube,
         cube_skinned,
         double_cube,
+        wave_plane
     };
 
     int curr_scene = 0;
 
     while (game_is_running) {
-        if (!process_input(keys, &delta_time, scenes, 3, &curr_scene)) game_is_running = false;
+        if (!process_input(keys, &delta_time, scenes, 4, &curr_scene)) game_is_running = false;
         update(&last_frame_time, &delta_time);
         render(&renderer, &scenes[curr_scene]);
     }

@@ -12,7 +12,7 @@ VertexShader* create_default_vertex_shader(const float rotation[3][3], const Vec
 
 Vertex default_vertex_shader_apply(VertexShader* shader, const Vertex* in) {    
     Vec3 multiplied;
-    multiplyMatrixByPoint(shader->rotation, &in->pos, &multiplied);
+    multiply_matrix_by_point(shader->rotation, &in->pos, &multiplied);
     Vertex vertexOut = {
         vec3_add(&multiplied, &shader->translation),
         in->tc,

@@ -39,3 +39,11 @@ Vec2 vec2_multiply (const Vec2* v, float scalar) {
     };
     return result;
 }
+
+Vec2 convert_tex_coord(float u, float v) {
+    Vec2 res = {
+        (u + 1.0f) / 3.0f,
+        v / 4.0f,
+    };
+    return res;
+}

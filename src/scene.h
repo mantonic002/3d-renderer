@@ -12,12 +12,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#define SQUARE(x) ((x) * (x))
+
 typedef struct Scene {
     IndexedTriangleList* triList;
     float angle_x;
     float angle_y;
     float angle_z;
     float z_offset;
+    float time;
     Pipeline* pipeline;
     void (*draw)(struct Scene* scene, SDL_Renderer** renderer);
 
@@ -28,6 +31,10 @@ void scene_cube_draw(Scene* scene, SDL_Renderer** renderer);
 void scene_double_cube_draw(Scene* scene, SDL_Renderer** renderer);
 void cube_init_triangle_list(Scene* scene, float texture_dimension);
 void cube_init_triangle_list_skinned(Scene* scene);
+
+void plane_init_triangle_list(Scene* scene, int divisions, float size);
+void plane_init_triangle_list_skinned(Scene* scene, int divisions, float size);
+void scene_plane_draw(Scene* scene, SDL_Renderer** renderer);
 
 Vec2 convert_tex_coord(float u, float v);
 

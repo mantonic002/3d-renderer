@@ -114,6 +114,17 @@ void update(int *last_frame_time, float *delta_time) {
 
 }
 
+void render(SDL_Renderer** renderer, Scene* scene) {
+    SDL_SetRenderDrawColor(*renderer, 0, 0, 0, 255);
+    SDL_RenderClear(*renderer);
+
+    SDL_SetRenderDrawColor(*renderer, 255, 255, 255, 255);
+
+    scene->draw(scene, renderer);
+
+    SDL_RenderPresent(*renderer);
+}
+
 void destroy_window(SDL_Window** window, SDL_Renderer** renderer) {
     SDL_DestroyRenderer(*renderer);
     SDL_DestroyWindow(*window);

@@ -114,14 +114,6 @@ void cube_init_triangle_list_skinned(Scene* scene) {
     scene->triList = triList;
 }
 
-Vec2 convert_tex_coord(float u, float v) {
-    Vec2 res = {
-        (u + 1.0f) / 3.0f,
-        v / 4.0f,
-    };
-    return res;
-}
-
 void scene_cube_draw(Scene* scene, SDL_Renderer** renderer) {
     // clear z buffer
     pipeline_begin_frame(scene->pipeline);

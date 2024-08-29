@@ -13,4 +13,6 @@
 #define SCALE 300
 #define SIZE 1
 
+#define SQUARE(x) ((x) * (x))
+
 #endif
