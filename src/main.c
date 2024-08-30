@@ -40,9 +40,9 @@ int main() {
     cube_flat_shade.draw = scene_cube_flat_shade_draw;
     cube_init_triangle_list_independent_faces_w_normals(&cube_flat_shade);
 
-    Scene model = make_scene_flat_shade(&renderer);
-    model.draw = scene_cube_flat_shade_draw;
-    model_init_triangle_list_independent_faces_w_normals(&model, "res/cat.obj");
+    Scene model = make_scene_model(&renderer, "res/cat.png");
+    model.draw = scene_model_draw;
+    model_init_triangle_list(&model, "res/cat.obj");
 
     Scene scenes[6] = {
         model,

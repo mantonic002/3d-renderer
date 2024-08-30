@@ -36,7 +36,8 @@ Vertex flat_shading_vertex_shader_apply(VertexShader* shader, const Vertex* in) 
 
     Vertex vertexOut;
     vertexOut.pos = vec3_add(&multiplied, &shader->translation);
-    vertexOut.col = vec3_multiply(&temp, 255.0f);
+    vertexOut.tc = in->tc;
+    vertexOut.col = temp;
 
     return vertexOut;
 }

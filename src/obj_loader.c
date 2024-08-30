@@ -74,7 +74,7 @@ void load_obj(const char *filename, IndexedTriangleList *triangleList) {
         } else if (trimmedLine[0] == 'v' && trimmedLine[1] == 't') {
             // read vertex normals
             float x, y;
-            sscanf(trimmedLine, "vn %f %f", &x, &y);
+            sscanf(trimmedLine, "vt %f %f", &x, &y);
             texCoords[tIndex] = (Vec2){x, y};
             tIndex++;
         } else if (trimmedLine[0] == 'v' && trimmedLine[1] == ' ') {
