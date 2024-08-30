@@ -17,5 +17,6 @@ typedef struct PixelShader {
 
 void pixel_shader_bind_texture(PixelShader* p, const char* filename);
 PixelShader* create_pixel_shader_texture(const char* filename);
+PixelShader* create_pixel_shader_flat_shade();
 
 #endif

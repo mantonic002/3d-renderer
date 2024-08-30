@@ -114,6 +114,8 @@ void cube_init_triangle_list_skinned(Scene* scene) {
     scene->triList = triList;
 }
 
+
+
 void scene_cube_draw(Scene* scene, SDL_Renderer** renderer) {
     // clear z buffer
     pipeline_begin_frame(scene->pipeline);

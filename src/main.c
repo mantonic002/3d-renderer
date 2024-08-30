@@ -36,17 +36,22 @@ int main() {
     wave_plane.draw = scene_plane_draw;
     plane_init_triangle_list_skinned(&wave_plane, 20, 3.0f);
 
-    Scene scenes[4] = {
+    Scene cube_flat_shade = make_scene_flat_shade(&renderer);
+    cube_flat_shade.draw = scene_cube_flat_shade_draw;
+    cube_init_triangle_list_independent_faces_w_normals(&cube_flat_shade);
+
+    Scene scenes[5] = {
         cube,
         cube_skinned,
         double_cube,
-        wave_plane
+        wave_plane,
+        cube_flat_shade
     };
 
     int curr_scene = 0;
 
     while (game_is_running) {
-        if (!process_input(keys, &delta_time, scenes, 4, &curr_scene)) game_is_running = false;
+        if (!process_input(keys, &delta_time, scenes, 5, &curr_scene)) game_is_running = false;
         update(&last_frame_time, &delta_time);
         render(&renderer, &scenes[curr_scene]);
     }
