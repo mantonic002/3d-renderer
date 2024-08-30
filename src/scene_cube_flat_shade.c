@@ -99,6 +99,18 @@ void cube_init_triangle_list_independent_faces_w_normals(Scene* scene) {
     scene->triList = triList;
 }
 
+void model_init_triangle_list_independent_faces_w_normals(Scene* scene, const char *filename) {
+    // make triList
+    IndexedTriangleList* triList = malloc(sizeof(IndexedTriangleList));
+    if (!triList) {
+        fprintf(stderr, "Memory allocation failed for triList\n");
+        exit(1);
+    }
+    load_obj(filename, triList);
+
+    scene->triList = triList;
+}
+
 void scene_cube_flat_shade_draw(Scene* scene, SDL_Renderer** renderer) {
     // clear z buffer
     pipeline_begin_frame(scene->pipeline);
