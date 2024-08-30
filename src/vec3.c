@@ -60,3 +60,22 @@ Vec3 vec3_multiply (const Vec3* v, float scalar) {
     };
     return result;
 }
+
+Vec3 vec3_hadamard (const Vec3* v1, const Vec3* v2) {
+    Vec3 result = {
+        v1->x * v2->x,
+        v1->y * v2->y,
+        v1->z * v2->z,
+    };
+    return result;
+}
+
+Vec3 vec3_saturate (const Vec3* v) {
+    Vec3 result = {
+        fmin(1.0f, fmax(0.0f, v->x)),
+        fmin(1.0f, fmax(0.0f, v->y)),
+        fmin(1.0f, fmax(0.0f, v->z)),
+    };
+    return result;
+}
+

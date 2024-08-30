@@ -1,5 +1,10 @@
 #include "vertex_shader.h"
 
+// constants for wave effect
+float freqWave = 10.0f;
+float freqScroll = 5.0f;
+float amplitude = 0.05f;
+
 VertexShader* create_wave_vertex_shader(const float rotation[3][3], const Vec3* translation, float time) {
     VertexShader* shader = (VertexShader*)malloc(sizeof(VertexShader));
     if (shader) {

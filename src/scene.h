@@ -12,8 +12,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#define SQUARE(x) ((x) * (x))
-
 typedef struct Scene {
     IndexedTriangleList* triList;
     float angle_x;
@@ -35,6 +33,10 @@ void cube_init_triangle_list_skinned(Scene* scene);
 void plane_init_triangle_list(Scene* scene, int divisions, float size);
 void plane_init_triangle_list_skinned(Scene* scene, int divisions, float size);
 void scene_plane_draw(Scene* scene, SDL_Renderer** renderer);
+
+Scene make_scene_flat_shade(SDL_Renderer** renderer);
+void scene_cube_flat_shade_draw(Scene* scene, SDL_Renderer** renderer);
+void cube_init_triangle_list_independent_faces_w_normals(Scene* scene);
 
 Vec2 convert_tex_coord(float u, float v);
 

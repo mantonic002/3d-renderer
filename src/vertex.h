@@ -8,6 +8,8 @@ typedef struct Vertex
 {
     Vec3 pos; // position
     Vec2 tc; // texture coordinate
+    Vec3 col;
+    Vec3 n; // normal
 } Vertex;
 
 Vertex vertex_interpolate (const Vertex* v1, const Vertex* v2, const float alpha);
