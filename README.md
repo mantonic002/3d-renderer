@@ -14,14 +14,15 @@ This repository contains a simple renderer written in C using SDL2 library for v
 
 - Scenes can be changed by pressing ```TAB```.
   
-- Currently there are 3 scenes:
+- Currently there are 6 scenes:
+  - Cat with textures and shading  
   - Textured cube
   - Skinned cube with texture wrapped around the cube
   - Two skinned cubes rotating in oposite directions where one can be moved
+  - Wavy plane
+  - Shaded white cube
     
-
-[Screencast from 2024-08-27 14-54-32.webm](https://github.com/user-attachments/assets/f5faf72c-4683-4e53-b47d-01622db48490)
-
+[Screencast from 2024-08-31 20-17-00.webm](https://github.com/user-attachments/assets/27ab52ef-97a2-4f8b-8eac-3dbbf2376348)
 
 ### How to Use
 
