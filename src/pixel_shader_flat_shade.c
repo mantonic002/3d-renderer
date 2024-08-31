@@ -2,9 +2,9 @@
 
 SDL_Color shader_effect_flat_shade(PixelShader* ps, Vertex* vertex) {
     SDL_Color c = {
-        vertex->col.x,
-        vertex->col.y,
-        vertex->col.z,
+        vertex->col.x * 255.0f,
+        vertex->col.y * 255.0f,
+        vertex->col.z * 255.0f,
     };
 
     return c;
