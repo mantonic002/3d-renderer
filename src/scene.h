@@ -36,7 +36,7 @@ void plane_init_triangle_list_skinned(Scene* scene, int divisions, float size);
 void scene_plane_draw(Scene* scene, SDL_Renderer** renderer);
 
 Scene make_scene_flat_shade(SDL_Renderer** renderer);
-void scene_cube_flat_shade_draw(Scene* scene, SDL_Renderer** renderer);
+void scene_flat_shade_draw(Scene* scene, SDL_Renderer** renderer);
 void cube_init_triangle_list_independent_faces_w_normals(Scene* scene);
 
 void model_init_triangle_list(Scene* scene, const char *filename);

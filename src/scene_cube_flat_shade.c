@@ -99,7 +99,7 @@ void cube_init_triangle_list_independent_faces_w_normals(Scene* scene) {
     scene->triList = triList;
 }
 
-void scene_cube_flat_shade_draw(Scene* scene, SDL_Renderer** renderer) {
+void scene_flat_shade_draw(Scene* scene, SDL_Renderer** renderer) {
     // clear z buffer
     pipeline_begin_frame(scene->pipeline);
 
