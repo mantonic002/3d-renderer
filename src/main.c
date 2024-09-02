@@ -40,6 +40,10 @@ int main() {
     cube_flat_shade.draw = scene_flat_shade_draw;
     cube_init_triangle_list_independent_faces_w_normals(&cube_flat_shade);
 
+    Scene sphere_flat_shade = make_scene_flat_shade(&renderer);
+    sphere_flat_shade.draw = scene_flat_shade_draw;
+    sphere_init_triangle_list(&sphere_flat_shade, 1.0f, 8, 16);
+
     Scene cat = make_scene_model(&renderer, "res/cat.png");
     cat.draw = scene_model_draw;
     model_init_triangle_list(&cat, "res/cat.obj");
@@ -48,7 +52,8 @@ int main() {
     shark.draw = scene_flat_shade_draw;
     model_init_triangle_list(&shark, "res/shark.obj");
 
-    Scene scenes[7] = {
+    Scene scenes[8] = {
+        sphere_flat_shade,
         cat,
         shark,
         cube,
@@ -61,7 +66,7 @@ int main() {
     int curr_scene = 0;
 
     while (game_is_running) {
-        if (!process_input(keys, &delta_time, scenes, 7, &curr_scene)) game_is_running = false;
+        if (!process_input(keys, &delta_time, scenes, 8, &curr_scene)) game_is_running = false;
         update(&last_frame_time, &delta_time);
         render(&renderer, &scenes[curr_scene]);
     }

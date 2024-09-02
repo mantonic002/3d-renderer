@@ -3,6 +3,7 @@
 
 #include "vec2.h"
 #include "vec3.h"
+#include "mat3.h"
 #include "vertex.h"
 #include "constants.h"
 #include "pipeline.h"
@@ -42,6 +43,8 @@ void cube_init_triangle_list_independent_faces_w_normals(Scene* scene);
 void model_init_triangle_list(Scene* scene, const char *filename);
 void scene_model_draw(Scene* scene, SDL_Renderer** renderer);
 Scene make_scene_model(SDL_Renderer** renderer, const char* filename);
+
+void sphere_init_triangle_list(Scene* scene, float radius, int latDiv, int longDiv);
 
 Vec2 convert_tex_coord(float u, float v);
 
