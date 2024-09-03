@@ -53,8 +53,8 @@ int main() {
     model_init_triangle_list(&shark, "res/shark.obj");
 
     Scene scenes[8] = {
-        cat,
         shark,
+        cat,
         sphere_flat_shade,
         cube_flat_shade,
         wave_plane,

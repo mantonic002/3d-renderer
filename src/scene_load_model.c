@@ -11,7 +11,7 @@ void model_init_triangle_list(Scene* scene, const char *filename) {
 
     scene->triList = triList;
 
-    scene->light_sphere = sphere_init_triangle_list(0.2f, 8, 16);
+    scene->light_sphere = sphere_init_triangle_list(0.05f, 8, 16);
     for (int i = 0; i < scene->light_sphere->sizeV; i++) {
         scene->light_sphere->vertices[i].col = (Vec3){1.0f, 1.0f, 1.0f};
     }
@@ -95,15 +95,7 @@ Scene make_scene_model(SDL_Renderer** renderer, const char* filename) {
     light_pipeline->geometry_shader = geometry_shader;
     light_pipeline->pixel_shader = create_pixel_shader_flat_shade();
     light_pipeline->zb = pipeline->zb;
-    VertexShader* vs = create_default_vertex_shader();
-    if (!vs) {
-        fprintf(stderr, "Memory allocation failed for vs\n");
-        free(geometry_shader);
-        free(pixel_shader);
-        free(pipeline);
-        exit(1);
-    }
-    light_pipeline->vertex_shader = vs;
+    light_pipeline->vertex_shader = create_default_vertex_shader();
     
     Scene scene;
     scene.angle_x = 0;
@@ -111,7 +103,7 @@ Scene make_scene_model(SDL_Renderer** renderer, const char* filename) {
     scene.angle_z = 0;
     scene.z_offset = 5;
     scene.time = 0.0f,
-    scene.lpos = (Vec3){0.0f, 0.0f, 1.0f};
+    scene.lpos = (Vec3){1.0f, 0.0f, 1.0f};
     scene.pipeline = pipeline;
     scene.light_pipeline = light_pipeline;
 
