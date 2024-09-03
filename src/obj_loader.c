@@ -15,8 +15,8 @@ char* trim_trailing_whitespace(char* str) {
 }
 
 // function to load an .obj file
-void load_obj(const char *filename, IndexedTriangleList *triangleList) {
-    FILE *file = fopen(filename, "r");
+void load_obj(const char* filename, IndexedTriangleList* triangleList) {
+    FILE* file = fopen(filename, "r");
     if (!file) {
         perror("Error opening file");
         exit(1);
@@ -43,10 +43,10 @@ void load_obj(const char *filename, IndexedTriangleList *triangleList) {
     }
 
     // allocate memory for vertices and face indices
-    Vertex *vertices = (Vertex*)malloc(sizeof(Vertex) * vertexCount);
-    Vec3 *indices = (Vec3*)malloc(sizeof(Vec3) * faceCount);
-    Vec3 *normals = (Vec3*)malloc(sizeof(Vec3) * normalCount);
-    Vec2 *texCoords = (Vec2*)malloc(sizeof(Vec2) * texCount);
+    Vertex* vertices = (Vertex*)malloc(sizeof(Vertex) * vertexCount);
+    Vec3* indices = (Vec3*)malloc(sizeof(Vec3) * faceCount);
+    Vec3* normals = (Vec3*)malloc(sizeof(Vec3) * normalCount);
+    Vec2* texCoords = (Vec2*)malloc(sizeof(Vec2) * texCount);
 
     if (!vertices || !indices || !normals || !texCoords) {
         perror("Error allocating memory");

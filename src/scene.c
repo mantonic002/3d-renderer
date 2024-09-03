@@ -29,21 +29,13 @@ Scene make_scene(SDL_Renderer** renderer, const char* filename) {
     pipeline->pixel_shader = pixel_shader;
     pipeline->zb = z_buffer_init(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    // transformation variables
-    float angle_x = 0;
-    float angle_y = 0;
-    float angle_z = 0;
-    float z_offset = 5;
-
-    Scene scene = {
-        NULL,
-        angle_x,
-        angle_y,
-        angle_z,
-        z_offset,
-        0.0f,
-        pipeline,
-    };
+    Scene scene;
+    scene.angle_x = 0;
+    scene.angle_y = 0;
+    scene.angle_z = 0;
+    scene.z_offset = 5;
+    scene.time = 0.0f,
+    scene.pipeline = pipeline;
 
     return scene;
 }

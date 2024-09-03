@@ -13,6 +13,6 @@
 
 char* trim_leading_whitespace(char* str);
 char* trim_trailing_whitespace(char* str);
-void load_obj(const char *filename, IndexedTriangleList *triangleList);
+void load_obj(const char* filename, IndexedTriangleList* triangleList);
 
 #endif
