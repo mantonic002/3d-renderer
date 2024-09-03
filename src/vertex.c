@@ -5,7 +5,7 @@ Vertex vertex_interpolate (const Vertex* v1, const Vertex* v2, const float alpha
         vec3_interpolate(&v1->pos, &v2->pos, alpha),
         vec2_interpolate(&v1->tc, &v2->tc, alpha),
         vec3_interpolate(&v1->col, &v2->col, alpha),
-        vec3_interpolate(&v1->n, &v2->n, alpha),
+        v1->n
     };
     return result;
 }

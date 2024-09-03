@@ -1,8 +1,8 @@
 #include "vertex_shader.h"
 
-Vec3 dir = { 0.0f,0.0f,1.0f };
+Vec3 dir = { 1.0f,1.0f,0.0f };
 Vec3 diffuse = { 1.0f,1.0f,1.0f };
-Vec3 ambient = { 0.1f,0.1f,0.1f };
+Vec3 ambient = { 0.3f,0.3f,0.3f };
 Vec3 color = { 0.8f,0.85f,1.0f };
 
 VertexShader* create_flat_shading_vertex_shader(const float rotation[3][3], const Vec3* translation) {

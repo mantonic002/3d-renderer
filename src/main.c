@@ -42,7 +42,7 @@ int main() {
 
     Scene sphere_flat_shade = make_scene_flat_shade(&renderer);
     sphere_flat_shade.draw = scene_flat_shade_draw;
-    sphere_init_triangle_list(&sphere_flat_shade, 1.0f, 8, 16);
+    sphere_init_normals(&sphere_flat_shade, 1.0f, 16, 32);
 
     Scene cat = make_scene_model(&renderer, "res/cat.png");
     cat.draw = scene_model_draw;
