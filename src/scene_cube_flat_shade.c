@@ -112,11 +112,9 @@ void scene_flat_shade_draw(Scene* scene, SDL_Renderer** renderer) {
     Mat3 rotation = multiply_matrices(rotation_matrix_x, rotation_matrix_y);
     rotation = multiply_matrices(rotation, rotation_matrix_z);
 
-    // get translation
-    Vec3 trans = {0.0f, 0.0f, scene->z_offset};
-
     // set pipeline vertex shader
-    scene->pipeline->vertex_shader =  create_flat_shading_vertex_shader(rotation.data, &trans);
+    memcpy(scene->pipeline->vertex_shader->rotation, &rotation, 3 * 3 * sizeof(float));
+    scene->pipeline->vertex_shader->translation = (Vec3){0.0f, 0.0f, scene->z_offset};
 
     // render triangles
     pipeline_draw(scene->pipeline, scene->triList);
@@ -150,6 +148,7 @@ Scene make_scene_flat_shade(SDL_Renderer** renderer) {
     pipeline->geometry_shader = geometry_shader;
     pipeline->pixel_shader = pixel_shader;
     pipeline->zb = z_buffer_init(WINDOW_WIDTH, WINDOW_HEIGHT);
+    pipeline->vertex_shader =  create_flat_shading_vertex_shader();
 
     Scene scene;
     scene.angle_x = 0;

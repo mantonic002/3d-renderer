@@ -48,19 +48,19 @@ int main() {
     cat.draw = scene_model_draw;
     model_init_triangle_list(&cat, "res/cat.obj");
 
-    Scene shark = make_scene_flat_shade(&renderer);
-    shark.draw = scene_flat_shade_draw;
+    Scene shark = make_scene_model(&renderer, "");
+    shark.draw = scene_model_draw;
     model_init_triangle_list(&shark, "res/shark.obj");
 
     Scene scenes[8] = {
-        sphere_flat_shade,
-        cat,
         shark,
+        cat,
+        sphere_flat_shade,
+        cube_flat_shade,
+        wave_plane,
+        double_cube,
         cube,
         cube_skinned,
-        double_cube,
-        wave_plane,
-        cube_flat_shade,
     };
 
     int curr_scene = 0;
