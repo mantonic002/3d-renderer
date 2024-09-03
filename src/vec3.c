@@ -79,9 +79,14 @@ Vec3 vec3_saturate (const Vec3* v) {
     return result;
 }
 
+float vec3_len(const Vec3* v) {
+    float length = sqrtf(v->x * v->x + v->y * v->y + v->z * v->z);
+    return length;
+}
+
 Vec3 vec3_normalize(const Vec3* v) {
     Vec3 normalized;
-    float length = sqrtf(v->x * v->x + v->y * v->y + v->z * v->z);
+    float length = vec3_len(v);
 
     // Prevent division by zero
     if (length > 0.0f) {

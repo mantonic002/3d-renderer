@@ -19,6 +19,7 @@ Vec3 vec3_multiply (const Vec3* v1, float scalar);
 Vec3 vec3_interpolate (const Vec3* v1, const Vec3* v2, const float alpha);
 Vec3 vec3_hadamard (const Vec3* v1, const Vec3* v2);
 Vec3 vec3_saturate (const Vec3* v);
+float vec3_len(const Vec3* v);
 Vec3 vec3_normalize(const Vec3* v);
 
 #endif

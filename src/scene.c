@@ -27,6 +27,7 @@ Scene make_scene(SDL_Renderer** renderer, const char* filename) {
     pipeline->renderer = renderer;
     pipeline->geometry_shader = geometry_shader;
     pipeline->pixel_shader = pixel_shader;
+    pipeline->vertex_shader = create_default_vertex_shader();
     pipeline->zb = z_buffer_init(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     Scene scene;

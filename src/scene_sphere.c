@@ -4,7 +4,7 @@ int calcIdx(int iLat, int iLong, int latDiv, int longDiv) {
     return iLat * longDiv + iLong;
 }
 
-void sphere_init_triangle_list(Scene* scene, float radius, int latDiv, int longDiv) {
+IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int longDiv) {
     // make vertices of a sphere
     const int sizeV = (latDiv - 1) * longDiv + 2;
     Vertex* vertices = malloc(sizeV * sizeof(Vertex));
@@ -103,11 +103,11 @@ void sphere_init_triangle_list(Scene* scene, float radius, int latDiv, int longD
     triList->indices = indices_cpy;
     triList->sizeI = sizeI;
 
-    scene->triList = triList;
+    return triList;
 }
 
 void sphere_init_normals(Scene* scene, float radius, int latDiv, int longDiv) {
-    sphere_init_triangle_list(scene, radius, latDiv, longDiv);
+    scene->triList = sphere_init_triangle_list(radius, latDiv, longDiv);
     for (int i = 0; i < scene->triList->sizeV; i++) {
         scene->triList->vertices[i].n = vec3_normalize(&scene->triList->vertices[i].pos);
     }

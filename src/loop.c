@@ -70,11 +70,11 @@ int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size,
     }
 
     // Update angles based on key states
-    if (keys[SDL_SCANCODE_Q])
+    if (keys[SDL_SCANCODE_Z])
         scenes[*curr_scene].angle_x += 0.02f;
-    if (keys[SDL_SCANCODE_W])
+    if (keys[SDL_SCANCODE_X])
         scenes[*curr_scene].angle_y += 0.02f;
-    if (keys[SDL_SCANCODE_E])
+    if (keys[SDL_SCANCODE_C])
         scenes[*curr_scene].angle_z += 0.02f;
 
     // move the cube closer or further away with arrow keys
@@ -87,6 +87,16 @@ int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size,
     {
         scenes[*curr_scene].z_offset -= 0.1f;
     }
+
+    // update light position
+    if (keys[SDL_SCANCODE_W])
+        scenes[*curr_scene].lpos.z += 0.02f;
+    if (keys[SDL_SCANCODE_A])
+        scenes[*curr_scene].lpos.x -= 0.02f;
+    if (keys[SDL_SCANCODE_S])
+        scenes[*curr_scene].lpos.z -= 0.02f;    
+    if (keys[SDL_SCANCODE_D])
+        scenes[*curr_scene].lpos.x += 0.02f;
 
 
     // check if rotation angles are more than 2pi and return them to zero if they are
