@@ -5,24 +5,26 @@ This repository contains a simple renderer written in C using SDL2 library for v
 ## What's Inside?
 
 ### Simple 3D renderer
-
-- Only rendering a cube for now, but will be able to load object files in the future.
   
-- Cube can be rotated by pressing ```X```, ```Y``` or ```Z```.
+- Objects can be rotated by pressing ```Z```, ```X``` or ```C```.
+  
+- In scenes with point light, light can be moved around by pressing ```W```, ```A```, ```S``` and ```D```.
 
-- Cube can be moved further away or closer by pressing &#8593; or &#8595;
+- Objects can be moved further away or closer by pressing &#8593; or &#8595;
 
 - Scenes can be changed by pressing ```TAB```.
   
-- Currently there are 6 scenes:
-  - Cat with textures and shading  
-  - Textured cube
-  - Skinned cube with texture wrapped around the cube
-  - Two skinned cubes rotating in oposite directions where one can be moved
+- Currently there are 8 scenes:
+  - Shark with point light that can be moved around
+  - Cat with textures and a point light that can be moved around  
+  - Sphere with flat shading
+  - Cube with flat shading
   - Wavy plane
-  - Shaded white cube
+  - Two skinned cubes rotating in oposite directions where one can be moved (demonstrating Z-buffering)
+  - Cube with same texture on 4 sides
+  - Skinned cube with texture wrapped around the cube
     
-[Screencast from 2024-08-31 20-17-00.webm](https://github.com/user-attachments/assets/27ab52ef-97a2-4f8b-8eac-3dbbf2376348)
+[Screencast from 2024-09-04 18-02-43.webm](https://github.com/user-attachments/assets/19ef7bdf-1cfd-4c97-9978-1b538ce70e21)
 
 ### How to Use
 
