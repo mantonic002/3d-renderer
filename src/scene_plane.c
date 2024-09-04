@@ -15,7 +15,7 @@ void plane_init_triangle_list(Scene* scene, int divisions, float size) {
 
     if (!vertices || !indices) {
         // Handle memory allocation failure
-        perror("Failed to allocate memory");
+        fprintf(stderr, "Memory allocation failed for indices or indices\n");
         exit(1);
     }
 
@@ -96,7 +96,7 @@ void scene_plane_draw(Scene* scene, SDL_Renderer** renderer) {
     // clear z buffer
     pipeline_begin_frame(scene->pipeline);
 
-        // rotation matrices for each axis
+    // rotation matrices for each axis
     Mat3 rotation_matrix_z = mat3_rotation_z(scene->angle_z);
     Mat3 rotation_matrix_y = mat3_rotation_y(scene->angle_y);
     Mat3 rotation_matrix_x = mat3_rotation_x(scene->angle_x);

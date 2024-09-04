@@ -30,8 +30,10 @@ typedef struct Scene {
 } Scene;
 
 Scene make_scene(SDL_Renderer** renderer, const char* filename);
+
 void scene_cube_draw(Scene* scene, SDL_Renderer** renderer);
 void scene_double_cube_draw(Scene* scene, SDL_Renderer** renderer);
+
 void cube_init_triangle_list(Scene* scene, float texture_dimension);
 void cube_init_triangle_list_skinned(Scene* scene);
 
