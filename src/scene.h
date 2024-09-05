@@ -47,6 +47,9 @@ void cube_init_triangle_list_independent_faces_w_normals(Scene* scene);
 void scene_point_light_per_vertex_draw(Scene* scene, SDL_Renderer** renderer);
 Scene make_scene_point_light_per_vertex(SDL_Renderer** renderer, const char* filename);
 
+void scene_point_light_per_pixel_draw(Scene* scene, SDL_Renderer** renderer);
+Scene make_scene_point_light_per_pixel(SDL_Renderer** renderer, const char* filename);
+
 IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int longDiv);
 void sphere_init_normals(Scene* scene, float radius, int latDiv, int longDiv);
 
