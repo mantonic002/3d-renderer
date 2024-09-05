@@ -27,7 +27,7 @@ Vertex point_light_vertex_shader_apply(VertexShader* shader, const Vertex* in) {
     const Vec3 dir = vec3_divide(&v_to_l, dist);
 
     // attenuation
-    const float attenuation = 1.0f / (constant_attenuation + linear_attenuation * dist * quadradic_attenuation * SQUARE(dist));
+    const float attenuation = 1.0f / (constant_attenuation + linear_attenuation * dist + quadradic_attenuation * SQUARE(dist));
 
     // intensity based on angle of incidence and attenuation
     Vec3 temp = multiply_matrix_by_point(shader->rotation, &in->n);

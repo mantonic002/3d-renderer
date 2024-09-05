@@ -4,6 +4,7 @@
 #include "loop.h"
 #include "helper.h"
 #include "scene.h"
+#include "obj_loader.h"
 
 int main() {
     bool game_is_running = false;
@@ -44,13 +45,13 @@ int main() {
     sphere_flat_shade.draw = scene_flat_shade_draw;
     sphere_init_normals(&sphere_flat_shade, 1.0f, 16, 32);
 
-    Scene cat = make_scene_model(&renderer, "res/cat.png");
-    cat.draw = scene_model_draw;
-    model_init_triangle_list(&cat, "res/cat.obj");
+    Scene cat = make_scene_point_light_per_vertex(&renderer, "res/cat.png");
+    cat.draw = scene_point_light_per_vertex_draw;
+    load_obj(&cat, "res/cat.obj");
 
-    Scene shark = make_scene_model(&renderer, "");
-    shark.draw = scene_model_draw;
-    model_init_triangle_list(&shark, "res/shark.obj");
+    Scene shark = make_scene_point_light_per_vertex(&renderer, "");
+    shark.draw = scene_point_light_per_vertex_draw;
+    load_obj(&shark, "res/shark.obj");
 
     Scene scenes[8] = {
         shark,

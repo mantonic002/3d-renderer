@@ -1,23 +1,6 @@
 #include "scene.h"
 
-void model_init_triangle_list(Scene* scene, const char *filename) {
-    // make triList
-    IndexedTriangleList* triList = malloc(sizeof(IndexedTriangleList));
-    if (!triList) {
-        fprintf(stderr, "Memory allocation failed for triList\n");
-        exit(1);
-    }
-    load_obj(filename, triList);
-
-    scene->triList = triList;
-
-    scene->light_sphere = sphere_init_triangle_list(0.05f, 8, 16);
-    for (int i = 0; i < scene->light_sphere->sizeV; i++) {
-        scene->light_sphere->vertices[i].col = (Vec3){1.0f, 1.0f, 1.0f};
-    }
-}
-
-void scene_model_draw(Scene* scene, SDL_Renderer** renderer) {
+void scene_point_light_per_vertex_draw(Scene* scene, SDL_Renderer** renderer) {
     // clear z buffer
     pipeline_begin_frame(scene->pipeline);
 
@@ -47,7 +30,7 @@ void scene_model_draw(Scene* scene, SDL_Renderer** renderer) {
     pipeline_draw(scene->light_pipeline, scene->light_sphere);
 }
 
-Scene make_scene_model(SDL_Renderer** renderer, const char* filename) {
+Scene make_scene_point_light_per_vertex(SDL_Renderer** renderer, const char* filename) {
     // make pixel shader
     PixelShader* pixel_shader;
     if (filename[0] == '\0') {
@@ -103,9 +86,14 @@ Scene make_scene_model(SDL_Renderer** renderer, const char* filename) {
     scene.angle_z = 0;
     scene.z_offset = 5;
     scene.time = 0.0f,
-    scene.lpos = (Vec3){1.0f, 0.0f, 1.0f};
+    scene.lpos = (Vec3){0.0f, 0.0f, 1.5f};
     scene.pipeline = pipeline;
     scene.light_pipeline = light_pipeline;
+
+    scene.light_sphere = sphere_init_triangle_list(0.05f, 8, 16);
+    for (int i = 0; i < scene.light_sphere->sizeV; i++) {
+        scene.light_sphere->vertices[i].col = (Vec3){1.0f, 1.0f, 1.0f};
+    }
 
     return scene;
 }

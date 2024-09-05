@@ -7,7 +7,6 @@
 #include "vertex.h"
 #include "constants.h"
 #include "pipeline.h"
-#include "obj_loader.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -45,9 +44,8 @@ Scene make_scene_flat_shade(SDL_Renderer** renderer);
 void scene_flat_shade_draw(Scene* scene, SDL_Renderer** renderer);
 void cube_init_triangle_list_independent_faces_w_normals(Scene* scene);
 
-void model_init_triangle_list(Scene* scene, const char *filename);
-void scene_model_draw(Scene* scene, SDL_Renderer** renderer);
-Scene make_scene_model(SDL_Renderer** renderer, const char* filename);
+void scene_point_light_per_vertex_draw(Scene* scene, SDL_Renderer** renderer);
+Scene make_scene_point_light_per_vertex(SDL_Renderer** renderer, const char* filename);
 
 IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int longDiv);
 void sphere_init_normals(Scene* scene, float radius, int latDiv, int longDiv);

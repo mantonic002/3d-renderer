@@ -94,7 +94,7 @@ Vec3 vec3_normalize(const Vec3* v) {
         normalized.y = v->y / length;
         normalized.z = v->z / length;
     } else {
-        // If the length is zero, return a zero vector (or handle it appropriately)
+        // If the length is zero, return a zero vector
         normalized.x = 0.0f;
         normalized.y = 0.0f;
         normalized.z = 0.0f;

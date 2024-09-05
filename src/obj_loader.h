@@ -1,6 +1,7 @@
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 
+#include "scene.h"
 #include "vec3.h"
 #include "vec2.h"
 #include "vertex.h"
@@ -13,6 +14,6 @@
 
 char* trim_leading_whitespace(char* str);
 char* trim_trailing_whitespace(char* str);
-void load_obj(const char* filename, IndexedTriangleList* triangleList);
+void load_obj(Scene* scene, const char* filename);
 
 #endif

@@ -15,7 +15,14 @@ char* trim_trailing_whitespace(char* str) {
 }
 
 // function to load an .obj file
-void load_obj(const char* filename, IndexedTriangleList* triangleList) {
+void load_obj(Scene* scene, const char* filename) {
+    // make triList
+    IndexedTriangleList* triangleList = malloc(sizeof(IndexedTriangleList));
+    if (!triangleList) {
+        fprintf(stderr, "Memory allocation failed for triangleList\n");
+        exit(1);
+    }
+
     FILE* file = fopen(filename, "r");
     if (!file) {
         perror("Error opening file");
@@ -111,4 +118,6 @@ void load_obj(const char* filename, IndexedTriangleList* triangleList) {
     triangleList->sizeV = vertexCount;
     triangleList->indices = indices;
     triangleList->sizeI = faceCount;
+
+    scene->triList = triangleList;
 }
