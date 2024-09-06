@@ -27,7 +27,7 @@ void plane_init_triangle_list(Scene* scene, int divisions, float size) {
     for (int y = 0, i = 0; y < nVerticesSide; y++) {
         float y_pos = (float)y * divisionSize;
         for (int x = 0; x < nVerticesSide; x++, i++) {
-            vertices[i].pos = (Vec3){
+            vertices[i].pos.as_vec3 = (Vec3){
                 bottomLeft.x + (float)x * divisionSize,
                 bottomLeft.y + y_pos,
                 0.0f

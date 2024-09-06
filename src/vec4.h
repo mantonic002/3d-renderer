@@ -13,10 +13,13 @@ typedef struct Vec4
 } Vec4;
 
 // Function prototypes
+Vec4 vec4(const Vec3* v, int w);
+Vec3 vec3(Vec4* v);
 Vec4 vec4_add(const Vec4* v1, const Vec4* v2);
 Vec4 vec4_subtract(const Vec4* v1, const Vec4* v2);
 Vec4 vec4_multiply(const Vec4* v, float scalar);
 Vec4 vec4_divide(const Vec4* v, float scalar);
+Vec4 vec4_interpolate (const Vec4* v1, const Vec4* v2, const float alpha);
 Vec4 vec4_hadamard(const Vec4* v1, const Vec4* v2);
 Vec4 vec4_saturate(const Vec4* v);
 float vec4_len(const Vec4* v);

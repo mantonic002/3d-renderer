@@ -17,12 +17,12 @@ VertexShader* create_wave_vertex_shader(const Mat rotation, const Vec3* translat
 }
 
 Vertex wave_vertex_shader_apply(VertexShader* shader, const Vertex* in) {    
-    Vec3 multiplied = multiply_matrix_by_vec3(shader->rotation, &in->pos);
+    Vec3 multiplied = multiply_matrix_by_vec3(shader->rotation, &in->pos.as_vec3);
     Vec3 pos = vec3_add(&multiplied, &shader->translation);
     pos.y += amplitude * sin( shader->time * freqScroll + pos.x * freqWave );
     
     Vertex vertexOut = {
-        pos,
+        {.as_vec3 = pos},
         in->tc,
         in->col,
         in->n

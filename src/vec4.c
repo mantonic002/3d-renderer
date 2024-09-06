@@ -1,11 +1,20 @@
 #include "vec4.h"
 
-Vec4 vec4(Vec3* v, int w) {
+Vec4 vec4(const Vec3* v, int w) {
     Vec4 result = {
         v->x,
         v->y,
         v->y,
         w
+    };
+    return result;
+}
+
+Vec3 vec3(Vec4* v) {
+    Vec3 result = {
+        v->x,
+        v->y,
+        v->y
     };
     return result;
 }
@@ -46,6 +55,16 @@ Vec4 vec4_divide(const Vec4* v, float scalar) {
         v->y / scalar,
         v->z / scalar,
         v->w / scalar
+    };
+    return result;
+}
+
+Vec4 vec4_interpolate (const Vec4* v1, const Vec4* v2, const float alpha) {
+    Vec4 result = {
+        v1->x + (v2->x - v1->x) * alpha,
+        v1->y + (v2->y - v1->y) * alpha,
+        v1->z + (v2->z - v1->z) * alpha,
+        v1->w + (v2->w - v1->w) * alpha,
     };
     return result;
 }

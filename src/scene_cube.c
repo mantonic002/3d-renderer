@@ -9,14 +9,14 @@ void cube_init_triangle_list(Scene* scene, float texture_dimension) {
         exit(1);
     }
     Vertex temp_vertices[] = {
-        {{-SIZE, -SIZE, -SIZE},  {0.0f, texture_dimension}},            
-        {{SIZE, -SIZE, -SIZE},   {texture_dimension, texture_dimension}},
-        {{-SIZE, SIZE, -SIZE},   {0.0f, 0.0f}},
-        {{SIZE, SIZE, -SIZE},    {texture_dimension, 0.0f}},            
-        {{-SIZE, -SIZE, SIZE},   {texture_dimension, texture_dimension}},
-        {{SIZE, -SIZE, SIZE},    {0.0f, texture_dimension}},            
-        {{-SIZE, SIZE, SIZE},     {texture_dimension, 0.0f}},            
-        {{SIZE, SIZE, SIZE},     {0.0f, 0.0f}},
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}},  {0.0f, texture_dimension}},            
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}},   {texture_dimension, texture_dimension}},
+        {{.as_vec3 = {-SIZE, SIZE, -SIZE}},   {0.0f, 0.0f}},
+        {{.as_vec3 = {SIZE, SIZE, -SIZE}},    {texture_dimension, 0.0f}},            
+        {{.as_vec3 = {-SIZE, -SIZE, SIZE}},   {texture_dimension, texture_dimension}},
+        {{.as_vec3 = {SIZE, -SIZE, SIZE}},    {0.0f, texture_dimension}},            
+        {{.as_vec3 = {-SIZE, SIZE, SIZE}},     {texture_dimension, 0.0f}},            
+        {{.as_vec3 = {SIZE, SIZE, SIZE}},     {0.0f, 0.0f}},
     };
     memcpy(vertices, temp_vertices, sizeV * sizeof(Vertex));
 
@@ -63,20 +63,20 @@ void cube_init_triangle_list_skinned(Scene* scene) {
         exit(1);
     }
     Vertex temp_vertices[] = {
-        {{-SIZE, -SIZE, -SIZE},  convert_tex_coord(1.0f, 0.0f)},            
-        {{SIZE, -SIZE, -SIZE},   convert_tex_coord(0.0f, 0.0f)}, 
-        {{-SIZE, SIZE, -SIZE},   convert_tex_coord(1.0f, 1.0f)}, 
-        {{SIZE, SIZE, -SIZE},    convert_tex_coord(0.0f, 1.0f)}, 
-        {{-SIZE, -SIZE, SIZE},   convert_tex_coord(1.0f, 3.0f)}, 
-        {{SIZE, -SIZE, SIZE},    convert_tex_coord(0.0f, 3.0f)}, 
-        {{-SIZE, SIZE, SIZE},    convert_tex_coord(1.0f, 2.0f)}, 
-        {{SIZE, SIZE, SIZE},     convert_tex_coord(0.0f, 2.0f)}, 
-        {{-SIZE, -SIZE, -SIZE},  convert_tex_coord(1.0f, 4.0f)}, 
-        {{SIZE, -SIZE, -SIZE},   convert_tex_coord(0.0f, 4.0f)}, 
-        {{-SIZE, -SIZE, -SIZE},  convert_tex_coord(2.0f, 1.0f)}, 
-        {{-SIZE, -SIZE, SIZE},   convert_tex_coord(2.0f, 2.0f)}, 
-        {{SIZE, -SIZE, -SIZE},   convert_tex_coord(-1.0f, 1.0f)}, 
-        {{SIZE, -SIZE, SIZE},    convert_tex_coord(-1.0f, 2.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}}, convert_tex_coord(1.0f, 0.0f)},            
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}}, convert_tex_coord(0.0f, 0.0f)}, 
+        {{.as_vec3 = {-SIZE, SIZE, -SIZE}}, convert_tex_coord(1.0f, 1.0f)}, 
+        {{.as_vec3 = {SIZE, SIZE, -SIZE}}, convert_tex_coord(0.0f, 1.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, SIZE}}, convert_tex_coord(1.0f, 3.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, SIZE}}, convert_tex_coord(0.0f, 3.0f)}, 
+        {{.as_vec3 = {-SIZE, SIZE, SIZE}}, convert_tex_coord(1.0f, 2.0f)}, 
+        {{.as_vec3 = {SIZE, SIZE, SIZE}}, convert_tex_coord(0.0f, 2.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}}, convert_tex_coord(1.0f, 4.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}}, convert_tex_coord(0.0f, 4.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}}, convert_tex_coord(2.0f, 1.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, SIZE}}, convert_tex_coord(2.0f, 2.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}}, convert_tex_coord(-1.0f, 1.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, SIZE}}, convert_tex_coord(-1.0f, 2.0f)}, 
     };
     memcpy(vertices, temp_vertices, sizeV * sizeof(Vertex));
 

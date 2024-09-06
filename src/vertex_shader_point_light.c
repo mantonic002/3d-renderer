@@ -18,7 +18,7 @@ Vertex point_light_vertex_shader_apply(VertexShader* shader, const Vertex* in) {
     float constant_attenuation = 0.382f;
 
     // calculate position based on rotation and translation
-    Vec3 multiplied = multiply_matrix_by_vec3(shader->rotation, &in->pos);
+    Vec3 multiplied = multiply_matrix_by_vec3(shader->rotation, &in->pos.as_vec3);
     Vec3 pos = vec3_add(&multiplied, &shader->translation);
 
     // light to vertex distance and direction
@@ -44,7 +44,7 @@ Vertex point_light_vertex_shader_apply(VertexShader* shader, const Vertex* in) {
     temp = vec3_saturate(&temp);
 
     Vertex vertexOut;
-    vertexOut.pos = pos;
+    vertexOut.pos.as_vec3 = pos;
     vertexOut.tc = in->tc;
     vertexOut.n = in->n;
     vertexOut.col = temp;

@@ -51,9 +51,9 @@ int main() {
 
 
     Scene scenes[7] = {
+        cat,
         shark_specular,
         shark,
-        cat,
         sphere_specular,
         cube_per_pixel_light,
         cube_flat_shade,

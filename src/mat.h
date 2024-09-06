@@ -5,6 +5,7 @@
 #include "vec4.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct Mat{
     int size;

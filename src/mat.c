@@ -173,9 +173,19 @@ Mat mat_translation(float x, float y, float z) {
 
 Vec3 multiply_matrix_by_vec3(const Mat matrix, const Vec3* point) {
     Vec3 result;
-    result.x = (point->x * matrix.data[0][0]) + (point->y * matrix.data[1][0]) + (point->z * matrix.data[2][0]);
-    result.y = (point->x * matrix.data[0][1]) + (point->y * matrix.data[1][1]) + (point->z * matrix.data[2][1]);
-    result.z = (point->x * matrix.data[0][2]) + (point->y * matrix.data[1][2]) + (point->z * matrix.data[2][2]);
+    if (matrix.size == 4) {
+        result.x = (point->x * matrix.data[0][0]) + (point->y * matrix.data[1][0]) + (point->z * matrix.data[2][0]) + matrix.data[3][0];
+        result.y = (point->x * matrix.data[0][1]) + (point->y * matrix.data[1][1]) + (point->z * matrix.data[2][1]) + matrix.data[3][1];
+        result.z = (point->x * matrix.data[0][2]) + (point->y * matrix.data[1][2]) + (point->z * matrix.data[2][2]) + matrix.data[3][2];
+    } else if (matrix.size == 3) {
+        result.x = (point->x * matrix.data[0][0]) + (point->y * matrix.data[1][0]) + (point->z * matrix.data[2][0]);
+        result.y = (point->x * matrix.data[0][1]) + (point->y * matrix.data[1][1]) + (point->z * matrix.data[2][1]);
+        result.z = (point->x * matrix.data[0][2]) + (point->y * matrix.data[1][2]) + (point->z * matrix.data[2][2]);
+    } else {
+        printf("Memory allocation failed for Pipeline\n");
+        exit(1);
+    }
+
     return result;
 }
 

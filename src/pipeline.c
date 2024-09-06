@@ -25,10 +25,10 @@ void assemble_triangles (Pipeline* p, const Vertex* vertices, int sizeV, const V
         Vertex v2 = vertices[(int)indices[i].y];
         Vertex v3 = vertices[(int)indices[i].z];
 
-        Vec3 v2_sub_v1 = vec3_subtract(&v2.pos, &v1.pos);
-        Vec3 v3_sub_v1 = vec3_subtract(&v3.pos, &v1.pos);
+        Vec3 v2_sub_v1 = vec3_subtract(&v2.pos.as_vec3, &v1.pos.as_vec3);
+        Vec3 v3_sub_v1 = vec3_subtract(&v3.pos.as_vec3, &v1.pos.as_vec3);
         Vec3 n = cross_product(&v2_sub_v1, &v3_sub_v1);
-        if (dot_product(&n, &v1.pos) <= 0.0f) {
+        if (dot_product(&n, &v1.pos.as_vec3) <= 0.0f) {
             process_triangle(p, &v1, &v2, &v3, i);
         }
     }
@@ -53,32 +53,32 @@ void draw_triangle (Pipeline* p, Triangle* triangle) {
     Vertex* v3 = &triangle->v3;
 
     // sort vertices by y (height)
-    if (v2->pos.y < v1->pos.y) 
+    if (v2->pos.as_vec3.y < v1->pos.as_vec3.y) 
         ptr_swap(v1, v2, sizeof(Vertex));
-    if (v3->pos.y < v2->pos.y) 
+    if (v3->pos.as_vec3.y < v2->pos.as_vec3.y) 
         ptr_swap(v2, v3, sizeof(Vertex));
-    if (v2->pos.y < v1->pos.y) 
+    if (v2->pos.as_vec3.y < v1->pos.as_vec3.y) 
         ptr_swap(v1, v2, sizeof(Vertex));
 
-    if (v1->pos.y == v2->pos.y) { // natural flat top
-        if (v2->pos.x < v1->pos.x) // sort top vertices by x
+    if (v1->pos.as_vec3.y == v2->pos.as_vec3.y) { // natural flat top
+        if (v2->pos.as_vec3.x < v1->pos.as_vec3.x) // sort top vertices by x
             ptr_swap(v1, v2, sizeof(Vertex));
 
         draw_flat_top_triangle(p, v1, v2, v3);
     }
-    else if (v2->pos.y == v3->pos.y) { // natural flat bottom
-        if (v3->pos.x < v2->pos.x) // sort bottom vertices by x
+    else if (v2->pos.as_vec3.y == v3->pos.as_vec3.y) { // natural flat bottom
+        if (v3->pos.as_vec3.x < v2->pos.as_vec3.x) // sort bottom vertices by x
             ptr_swap(v2, v3, sizeof(Vertex));
 
         draw_flat_bottom_triangle(p, v1, v2, v3);
     }
     else { // general case - has to be split into 1 flat top and 1 flat bottom
         // find a splitting vertex y
-        float alpha = (v2->pos.y - v1->pos.y) / (v3->pos.y - v1->pos.y);
+        float alpha = (v2->pos.as_vec3.y - v1->pos.as_vec3.y) / (v3->pos.as_vec3.y - v1->pos.as_vec3.y);
         // Interpolate to find the point between v3 and v1
         Vertex vi = vertex_interpolate(v1, v3, alpha);
 
-        if (v2->pos.x < vi.pos.x) { // major right
+        if (v2->pos.as_vec3.x < vi.pos.as_vec3.x) { // major right
             draw_flat_bottom_triangle(p, v1, v2, &vi);
             draw_flat_top_triangle(p, v2, &vi, v3);
         }
@@ -91,7 +91,7 @@ void draw_triangle (Pipeline* p, Triangle* triangle) {
 
 void draw_flat_top_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Vertex* v3) {
     // calc dVertex / delta_y
-    float delta_y = v3->pos.y - v1->pos.y;
+    float delta_y = v3->pos.as_vec3.y - v1->pos.as_vec3.y;
     Vertex temp = vertex_subtract(v3, v1);
     Vertex dv1 = vertex_divide(&temp, delta_y);
 
@@ -107,7 +107,7 @@ void draw_flat_top_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, co
 
 void draw_flat_bottom_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Vertex* v3) {
     // calc dVertex / delta_y
-    float delta_y = v3->pos.y - v1->pos.y;
+    float delta_y = v3->pos.as_vec3.y - v1->pos.as_vec3.y;
     Vertex temp = vertex_subtract(v2, v1);
     Vertex dv1 = vertex_divide(&temp, delta_y);
 
@@ -126,14 +126,14 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
 
     // TOP part of the top-left rule
     // start and end scanlines
-    int yStart = (int)ceil( v1->pos.y - 0.5f);
-    int yEnd = (int)ceil( v3->pos.y - 0.5f); // not drawn
+    int yStart = (int)ceil( v1->pos.as_vec3.y - 0.5f);
+    int yEnd = (int)ceil( v3->pos.as_vec3.y - 0.5f); // not drawn
 
     //interpolant prestep
-    Vertex temp = vertex_multiply(dv1, ((float)yStart + 0.5f - v1->pos.y));
+    Vertex temp = vertex_multiply(dv1, ((float)yStart + 0.5f - v1->pos.as_vec3.y));
     itEdge1 = vertex_add(&itEdge1, &temp);
 
-    temp = vertex_multiply(dv2, ((float)yStart + 0.5f - v1->pos.y));
+    temp = vertex_multiply(dv2, ((float)yStart + 0.5f - v1->pos.as_vec3.y));
     *itEdge2 = vertex_add(itEdge2, &temp);
 
     SDL_Color c;
@@ -143,23 +143,23 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
     {
         // LEFT part of the top-left rule
         // calc start and end pixels
-        int xStart = (int)ceil(itEdge1.pos.x - 0.5f);
-        int xEnd = (int)ceil(itEdge2->pos.x - 0.5f); // not drawn
+        int xStart = (int)ceil(itEdge1.pos.as_vec3.x - 0.5f);
+        int xEnd = (int)ceil(itEdge2->pos.as_vec3.x - 0.5f); // not drawn
 
         // scanline interpolant startpoint
         Vertex iLine = itEdge1;
 
         // delta scanline interpolant/dx
-        const float dx = itEdge2->pos.x - itEdge1.pos.x;
+        const float dx = itEdge2->pos.as_vec3.x - itEdge1.pos.as_vec3.x;
         temp = vertex_subtract(itEdge2, &iLine);
         Vertex diLine = vertex_divide(&temp, dx);
 
-        temp = vertex_multiply(&diLine, ((float)xStart + 0.5f - itEdge1.pos.x));
+        temp = vertex_multiply(&diLine, ((float)xStart + 0.5f - itEdge1.pos.as_vec3.x));
         iLine = vertex_add(&iLine, &temp);
 
         for (int x = xStart; x < xEnd; x++, iLine = vertex_add(&iLine, &diLine)) {
             // recover interpolated z from interpolated zInv
-            float z = 1.0f / iLine.pos.z;
+            float z = 1.0f / iLine.pos.as_vec3.z;
             if (z_buffer_test_and_set(p->zb, x, y, z)){            
                 // recover interpolated atributes
                 Vertex attr = vertex_multiply(&iLine, z);
@@ -176,15 +176,15 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
 
 // transformation from object space to screen space
 void transform (Vertex* v) {   
-        float zInv = 1.0f / v->pos.z;
+        float zInv = 1.0f / v->pos.as_vec3.z;
 
         // dividing all components of vertex by z, including texture coordinates
         *v = vertex_multiply(v, zInv);
         
         // adjust x and y with window width and scale
-        v->pos.x = WINDOW_WIDTH/2 + v->pos.x * SCALE;
-        v->pos.y = WINDOW_HEIGHT/2 + v->pos.y * SCALE;
+        v->pos.as_vec3.x = WINDOW_WIDTH/2 + v->pos.as_vec3.x * SCALE;
+        v->pos.as_vec3.y = WINDOW_HEIGHT/2 + v->pos.as_vec3.y * SCALE;
 
         // store zInv because everything was divided by z including z itself.
-        v->pos.z = zInv;
+        v->pos.as_vec3.z = zInv;
 }
