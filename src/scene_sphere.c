@@ -20,14 +20,14 @@ IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int lon
     int i = 0;
     for (int iLat = 1; iLat < latDiv; iLat++) {
 
-        Mat3 rotation_matrix_x = mat3_rotation_x(latitudeAngle * iLat);
+        Mat rotation_matrix_x = mat_rotation_x(latitudeAngle * iLat, 3);
 
-        Vec3 latBase = multiply_matrix_by_point(rotation_matrix_x.data, &base);
+        Vec3 latBase = multiply_matrix_by_vec3(rotation_matrix_x, &base);
 
         for (int iLong = 0; iLong < longDiv; iLong++) {
-            Mat3 rotation_matrix_z = mat3_rotation_z(longitudeAngle * iLong);
+            Mat rotation_matrix_z = mat_rotation_z(longitudeAngle * iLong, 3);
 
-            Vec3 vert = multiply_matrix_by_point(rotation_matrix_z.data, &latBase);
+            Vec3 vert = multiply_matrix_by_vec3(rotation_matrix_z, &latBase);
 
             vertices[i++].pos = vert;
         }

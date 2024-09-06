@@ -14,10 +14,10 @@ VertexShader* create_flat_shading_vertex_shader() {
 
 Vertex flat_shading_vertex_shader_apply(VertexShader* shader, const Vertex* in) {
     // calculate position based on rotation and translation
-    Vec3 multiplied = multiply_matrix_by_point(shader->rotation, &in->pos);
+    Vec3 multiplied = multiply_matrix_by_vec3(shader->rotation, &in->pos);
     
     // calculate intensity based on angle of incidence
-    Vec3 temp = multiply_matrix_by_point(shader->rotation, &in->n);
+    Vec3 temp = multiply_matrix_by_vec3(shader->rotation, &in->n);
     Vec3 d = vec3_multiply(&shader->light_diffuse, fmax(0.0f, -dot_product(&temp, &shader->light_pos)));
 
     // add diffuse+ambient

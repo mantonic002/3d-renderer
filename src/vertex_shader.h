@@ -2,11 +2,12 @@
 #define VERTEX_SHADER_H
 
 #include "vertex.h"
+#include "mat.h"
 #include "helper.h"
 #include "constants.h"
 
 typedef struct VertexShader{
-    float rotation[3][3]; //3x3 rotation matrix
+    Mat rotation; //3x3 rotation matrix
     Vec3 translation;
     float time; // for wave effect
     Vec3 light_pos;
@@ -19,7 +20,7 @@ typedef struct VertexShader{
 VertexShader* create_default_vertex_shader();
 Vertex default_vertex_shader_apply(VertexShader* shader, const Vertex* in);
 
-VertexShader* create_wave_vertex_shader(const float rotation[3][3], const Vec3* translation, float time);
+VertexShader* create_wave_vertex_shader(const Mat rotation, const Vec3* translation, float time);
 Vertex wave_vertex_shader_apply(VertexShader* shader, const Vertex* in);
 
 VertexShader* create_flat_shading_vertex_shader();
