@@ -53,6 +53,9 @@ Scene make_scene_point_light_per_pixel(SDL_Renderer** renderer, const char* file
 IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int longDiv);
 void sphere_init_normals(Scene* scene, float radius, int latDiv, int longDiv);
 
+void scene_point_light_per_pixel_specular_draw(Scene* scene, SDL_Renderer** renderer);
+Scene make_scene_point_light_per_pixel_specular(SDL_Renderer** renderer, const char* filename, float specular_power);
+
 Vec2 convert_tex_coord(float u, float v);
 
 #endif
