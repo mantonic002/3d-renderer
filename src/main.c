@@ -53,7 +53,12 @@ int main() {
     shark.draw = scene_point_light_per_vertex_draw;
     load_obj(&shark, "res/shark.obj");
 
-    Scene scenes[8] = {
+    Scene cube_per_pixel_light = make_scene_point_light_per_pixel(&renderer, "");
+    cube_per_pixel_light.draw = scene_point_light_per_pixel_draw;
+    cube_init_triangle_list_independent_faces_w_normals(&cube_per_pixel_light);
+
+    Scene scenes[9] = {
+        cube_per_pixel_light,
         shark,
         cat,
         sphere_flat_shade,
@@ -67,7 +72,7 @@ int main() {
     int curr_scene = 0;
 
     while (game_is_running) {
-        if (!process_input(keys, &delta_time, scenes, 8, &curr_scene)) game_is_running = false;
+        if (!process_input(keys, &delta_time, scenes, 9, &curr_scene)) game_is_running = false;
         update(&last_frame_time, &delta_time);
         render(&renderer, &scenes[curr_scene]);
     }

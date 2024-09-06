@@ -4,8 +4,8 @@ VertexShader* create_point_light_vertex_shader() {
     VertexShader* shader = (VertexShader*)malloc(sizeof(VertexShader));
     if (shader) {
         shader->apply = point_light_vertex_shader_apply;
-        shader->light_diffuse = (Vec3){ 1.0f,1.0f,1.0f };
-        shader->light_ambient = (Vec3){ 0.3f,0.3f,0.3f };
+        shader->light_diffuse = (Vec3){ 0.5f,0.5f,0.5f };
+        shader->light_ambient = (Vec3){ 0.1f,0.1f,0.1f };
         shader->light_color =   (Vec3){ 0.8f,0.85f,1.0f };
     }
     return shader;

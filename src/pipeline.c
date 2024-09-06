@@ -63,11 +63,13 @@ void draw_triangle (Pipeline* p, Triangle* triangle) {
     if (v1->pos.y == v2->pos.y) { // natural flat top
         if (v2->pos.x < v1->pos.x) // sort top vertices by x
             ptr_swap(v1, v2, sizeof(Vertex));
+
         draw_flat_top_triangle(p, v1, v2, v3);
     }
     else if (v2->pos.y == v3->pos.y) { // natural flat bottom
         if (v3->pos.x < v2->pos.x) // sort bottom vertices by x
             ptr_swap(v2, v3, sizeof(Vertex));
+
         draw_flat_bottom_triangle(p, v1, v2, v3);
     }
     else { // general case - has to be split into 1 flat top and 1 flat bottom
@@ -152,6 +154,9 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
         temp = vertex_subtract(itEdge2, &iLine);
         Vertex diLine = vertex_divide(&temp, dx);
 
+        temp = vertex_multiply(&diLine, ((float)xStart + 0.5f - itEdge1.pos.x));
+        iLine = vertex_add(&iLine, &temp);
+
         for (int x = xStart; x < xEnd; x++, iLine = vertex_add(&iLine, &diLine)) {
             // recover interpolated z from interpolated zInv
             float z = 1.0f / iLine.pos.z;
@@ -175,7 +180,7 @@ void transform (Vertex* v) {
 
         // dividing all components of vertex by z, including texture coordinates
         *v = vertex_multiply(v, zInv);
-
+        
         // adjust x and y with window width and scale
         v->pos.x = WINDOW_WIDTH/2 + v->pos.x * SCALE;
         v->pos.y = WINDOW_HEIGHT/2 + v->pos.y * SCALE;

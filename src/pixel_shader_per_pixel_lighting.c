@@ -1,14 +1,11 @@
 #include "pixel_shader.h"
 
+float x = 0;
 SDL_Color shader_effect_per_pixel_light(PixelShader* ps, Vertex* vertex) {
     // values for calculating lighting
     float linear_attenuation = 1.0f;
     float quadradic_attenuation = 2.619f;
     float constant_attenuation = 0.382f;
-    // if (vertex->world_pos.x > 0.0f && vertex->world_pos.x < 1.0f){
-    //     printf("world pos   x:%f, y:%f, c:%f, \n", vertex->world_pos.x, vertex->n.y, vertex->n.z);
-    //     printf("light pos   x:%f, y:%f, c:%f, \n", ps->light_pos.x, ps->light_pos.y, ps->light_pos.z);
-    // }
 
     // light to vertex distance and direction
     const Vec3 v_to_l = vec3_subtract(&ps->light_pos, &vertex->world_pos);
@@ -64,8 +61,8 @@ PixelShader* create_pixel_shader_per_pixel_lighting(const char* filename) {
         } else {
             ps->texture = NULL;
         }
-        ps->light_diffuse = (Vec3){ 1.0f,1.0f,1.0f };
-        ps->light_ambient = (Vec3){ 0.3f,0.3f,0.3f };
+        ps->light_diffuse = (Vec3){ 0.5f,0.5f,0.5f };
+        ps->light_ambient = (Vec3){ 0.1f,0.1f,0.1f };
         ps->light_color =   (Vec3){ 0.8f,0.85f,1.0f };
         ps->shade = shader_effect_per_pixel_light;
     }
