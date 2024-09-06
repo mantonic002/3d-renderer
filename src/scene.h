@@ -3,7 +3,7 @@
 
 #include "vec2.h"
 #include "vec3.h"
-#include "mat3.h"
+#include "mat.h"
 #include "vertex.h"
 #include "constants.h"
 #include "pipeline.h"

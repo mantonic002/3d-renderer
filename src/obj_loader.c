@@ -88,7 +88,7 @@ void load_obj(Scene* scene, const char* filename) {
             // read vertex position
             float x, y, z;
             sscanf(trimmedLine, "v %f %f %f", &x, &y, &z);
-            vertices[vIndex].pos = (Vec3){x, y, z};
+            vertices[vIndex].pos.as_vec3 = (Vec3){x, y, z};
             vIndex++;
         } else if (trimmedLine[0] == 'f') {
             // read face indices

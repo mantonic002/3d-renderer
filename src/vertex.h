@@ -1,12 +1,18 @@
 #ifndef TEX_VER_H
 #define TEX_VER_H
 
+#include "vec4.h"
 #include "vec3.h"
 #include "vec2.h"
 
+typedef union {
+    Vec3 as_vec3;
+    Vec4 as_vec4;
+} VecUnion;
+
 typedef struct Vertex
 {
-    Vec3 pos; // position
+    VecUnion pos; // position as both Vec3 and Vec4
     Vec2 tc; // texture coordinate
     Vec3 col;
     Vec3 n; // normal

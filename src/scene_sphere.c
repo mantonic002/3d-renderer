@@ -20,25 +20,25 @@ IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int lon
     int i = 0;
     for (int iLat = 1; iLat < latDiv; iLat++) {
 
-        Mat3 rotation_matrix_x = mat3_rotation_x(latitudeAngle * iLat);
+        Mat rotation_matrix_x = mat_rotation_x(latitudeAngle * iLat, 3);
 
-        Vec3 latBase = multiply_matrix_by_point(rotation_matrix_x.data, &base);
+        Vec3 latBase = multiply_matrix_by_vec3(rotation_matrix_x, &base);
 
         for (int iLong = 0; iLong < longDiv; iLong++) {
-            Mat3 rotation_matrix_z = mat3_rotation_z(longitudeAngle * iLong);
+            Mat rotation_matrix_z = mat_rotation_z(longitudeAngle * iLong, 3);
 
-            Vec3 vert = multiply_matrix_by_point(rotation_matrix_z.data, &latBase);
+            Vec3 vert = multiply_matrix_by_vec3(rotation_matrix_z, &latBase);
 
-            vertices[i++].pos = vert;
+            vertices[i++].pos.as_vec3 = vert;
         }
     }
 
     // add poles
     const int iNorthPole = i;
-    vertices[i++].pos = base;
+    vertices[i++].pos.as_vec3 = base;
 
     const int iSouthPole = i;
-    vertices[i++].pos = (Vec3){0.0f, 0.0f, -radius}; // -base
+    vertices[i++].pos.as_vec3 = (Vec3){0.0f, 0.0f, -radius}; // -base
 
     // make indices of a sphere
     int sizeI = (latDiv - 2) * (longDiv - 1) * 2 + longDiv * 3;
@@ -51,36 +51,40 @@ IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int lon
     i = 0;
     for (int iLat = 0; iLat < latDiv - 2; iLat++) {
         for (int iLong = 0; iLong < longDiv - 1; iLong++) {
-            indices[i].x =      calcIdx(iLat, iLong, latDiv, longDiv);
+            indices[i].x =    calcIdx(iLat, iLong + 1, latDiv, longDiv);
             indices[i].y =      calcIdx(iLat + 1, iLong, latDiv, longDiv);
-            indices[i++].z =    calcIdx(iLat, iLong + 1, latDiv, longDiv);
-            indices[i].x =      calcIdx(iLat, iLong + 1, latDiv, longDiv);
+            indices[i++].z =      calcIdx(iLat, iLong, latDiv, longDiv);
+
+            indices[i].x =    calcIdx(iLat + 1, iLong + 1, latDiv, longDiv);
             indices[i].y =      calcIdx(iLat + 1, iLong, latDiv, longDiv);
-            indices[i++].z =    calcIdx(iLat + 1, iLong + 1, latDiv, longDiv);
+            indices[i++].z =      calcIdx(iLat, iLong + 1, latDiv, longDiv);
         }
-        indices[i].x =      calcIdx(iLat, longDiv - 1, latDiv, longDiv);
+        indices[i].x =    calcIdx(iLat, 0, latDiv, longDiv);
         indices[i].y =      calcIdx(iLat + 1, longDiv - 1, latDiv, longDiv);
-        indices[i++].z =    calcIdx(iLat, 0, latDiv, longDiv);
-        indices[i].x =      calcIdx(iLat, 0, latDiv, longDiv);
+        indices[i++].z =      calcIdx(iLat, longDiv - 1, latDiv, longDiv);
+
+        indices[i].x =    calcIdx(iLat + 1, 0, latDiv, longDiv);
         indices[i].y =      calcIdx(iLat + 1, longDiv - 1, latDiv, longDiv);
-        indices[i++].z =    calcIdx(iLat + 1, 0, latDiv, longDiv);
+        indices[i++].z =      calcIdx(iLat, 0, latDiv, longDiv);
     }
 
     // conect poles
     for (int iLong = 0; iLong < longDiv - 1; iLong++) {
-        indices[i].x =      iNorthPole;
+        indices[i].x =    calcIdx(0, iLong + 1, latDiv, longDiv);
         indices[i].y =      calcIdx(0, iLong, latDiv, longDiv);
-        indices[i++].z =    calcIdx(0, iLong + 1, latDiv, longDiv);
-        indices[i].x =      calcIdx(latDiv - 2, iLong + 1, latDiv, longDiv);
+        indices[i++].z =      iNorthPole;
+        
+        indices[i].x =    iSouthPole;
         indices[i].y =      calcIdx(latDiv - 2, iLong, latDiv, longDiv);
-        indices[i++].z =    iSouthPole;
+        indices[i++].z =      calcIdx(latDiv - 2, iLong + 1, latDiv, longDiv);
     }
-    indices[i].x =      iNorthPole;
+    indices[i].x =    calcIdx(0, 0, latDiv, longDiv);
     indices[i].y =      calcIdx(0, longDiv - 1, latDiv, longDiv);
-    indices[i++].z =    calcIdx(0, 0, latDiv, longDiv);
-    indices[i].x =      calcIdx(latDiv - 2, 0, latDiv, longDiv);
+    indices[i++].z =      iNorthPole;
+
+    indices[i].x =    iSouthPole;
     indices[i].y =      calcIdx(latDiv - 2, longDiv - 1, latDiv, longDiv);
-    indices[i++].z =    iSouthPole;
+    indices[i++].z =      calcIdx(latDiv - 2, 0, latDiv, longDiv);
 
     // can't figure out sizeI calculation, so just making it a bit bigger, and then copying i elements to new array
     sizeI = i;
@@ -107,7 +111,7 @@ IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int lon
 void sphere_init_normals(Scene* scene, float radius, int latDiv, int longDiv) {
     scene->triList = sphere_init_triangle_list(radius, latDiv, longDiv);
     for (int i = 0; i < scene->triList->sizeV; i++) {
-        Vec3 norm = vec3_normalize(&scene->triList->vertices[i].pos);
-        scene->triList->vertices[i].n = vec3_multiply(&norm, -1);
+        Vec3 norm = vec3_normalize(&scene->triList->vertices[i].pos.as_vec3);
+        scene->triList->vertices[i].n = norm;
     }
 }

@@ -35,7 +35,7 @@ void cube_init_triangle_list_independent_faces_w_normals(Scene* scene) {
         {SIZE, SIZE, SIZE},     
     };
     for (int i = 0; i < sizeV; i++ ) {
-        vertices[i].pos = temp_vertices[i];
+        vertices[i].pos.as_vec3 = temp_vertices[i];
     }
 
     // face normals

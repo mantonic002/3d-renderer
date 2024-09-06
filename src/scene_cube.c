@@ -9,14 +9,14 @@ void cube_init_triangle_list(Scene* scene, float texture_dimension) {
         exit(1);
     }
     Vertex temp_vertices[] = {
-        {{-SIZE, -SIZE, -SIZE},  {0.0f, texture_dimension}},            
-        {{SIZE, -SIZE, -SIZE},   {texture_dimension, texture_dimension}},
-        {{-SIZE, SIZE, -SIZE},   {0.0f, 0.0f}},
-        {{SIZE, SIZE, -SIZE},    {texture_dimension, 0.0f}},            
-        {{-SIZE, -SIZE, SIZE},   {texture_dimension, texture_dimension}},
-        {{SIZE, -SIZE, SIZE},    {0.0f, texture_dimension}},            
-        {{-SIZE, SIZE, SIZE},     {texture_dimension, 0.0f}},            
-        {{SIZE, SIZE, SIZE},     {0.0f, 0.0f}},
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}},  {0.0f, texture_dimension}},            
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}},   {texture_dimension, texture_dimension}},
+        {{.as_vec3 = {-SIZE, SIZE, -SIZE}},   {0.0f, 0.0f}},
+        {{.as_vec3 = {SIZE, SIZE, -SIZE}},    {texture_dimension, 0.0f}},            
+        {{.as_vec3 = {-SIZE, -SIZE, SIZE}},   {texture_dimension, texture_dimension}},
+        {{.as_vec3 = {SIZE, -SIZE, SIZE}},    {0.0f, texture_dimension}},            
+        {{.as_vec3 = {-SIZE, SIZE, SIZE}},     {texture_dimension, 0.0f}},            
+        {{.as_vec3 = {SIZE, SIZE, SIZE}},     {0.0f, 0.0f}},
     };
     memcpy(vertices, temp_vertices, sizeV * sizeof(Vertex));
 
@@ -63,20 +63,20 @@ void cube_init_triangle_list_skinned(Scene* scene) {
         exit(1);
     }
     Vertex temp_vertices[] = {
-        {{-SIZE, -SIZE, -SIZE},  convert_tex_coord(1.0f, 0.0f)},            
-        {{SIZE, -SIZE, -SIZE},   convert_tex_coord(0.0f, 0.0f)}, 
-        {{-SIZE, SIZE, -SIZE},   convert_tex_coord(1.0f, 1.0f)}, 
-        {{SIZE, SIZE, -SIZE},    convert_tex_coord(0.0f, 1.0f)}, 
-        {{-SIZE, -SIZE, SIZE},   convert_tex_coord(1.0f, 3.0f)}, 
-        {{SIZE, -SIZE, SIZE},    convert_tex_coord(0.0f, 3.0f)}, 
-        {{-SIZE, SIZE, SIZE},    convert_tex_coord(1.0f, 2.0f)}, 
-        {{SIZE, SIZE, SIZE},     convert_tex_coord(0.0f, 2.0f)}, 
-        {{-SIZE, -SIZE, -SIZE},  convert_tex_coord(1.0f, 4.0f)}, 
-        {{SIZE, -SIZE, -SIZE},   convert_tex_coord(0.0f, 4.0f)}, 
-        {{-SIZE, -SIZE, -SIZE},  convert_tex_coord(2.0f, 1.0f)}, 
-        {{-SIZE, -SIZE, SIZE},   convert_tex_coord(2.0f, 2.0f)}, 
-        {{SIZE, -SIZE, -SIZE},   convert_tex_coord(-1.0f, 1.0f)}, 
-        {{SIZE, -SIZE, SIZE},    convert_tex_coord(-1.0f, 2.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}}, convert_tex_coord(1.0f, 0.0f)},            
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}}, convert_tex_coord(0.0f, 0.0f)}, 
+        {{.as_vec3 = {-SIZE, SIZE, -SIZE}}, convert_tex_coord(1.0f, 1.0f)}, 
+        {{.as_vec3 = {SIZE, SIZE, -SIZE}}, convert_tex_coord(0.0f, 1.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, SIZE}}, convert_tex_coord(1.0f, 3.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, SIZE}}, convert_tex_coord(0.0f, 3.0f)}, 
+        {{.as_vec3 = {-SIZE, SIZE, SIZE}}, convert_tex_coord(1.0f, 2.0f)}, 
+        {{.as_vec3 = {SIZE, SIZE, SIZE}}, convert_tex_coord(0.0f, 2.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}}, convert_tex_coord(1.0f, 4.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}}, convert_tex_coord(0.0f, 4.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, -SIZE}}, convert_tex_coord(2.0f, 1.0f)}, 
+        {{.as_vec3 = {-SIZE, -SIZE, SIZE}}, convert_tex_coord(2.0f, 2.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, -SIZE}}, convert_tex_coord(-1.0f, 1.0f)}, 
+        {{.as_vec3 = {SIZE, -SIZE, SIZE}}, convert_tex_coord(-1.0f, 2.0f)}, 
     };
     memcpy(vertices, temp_vertices, sizeV * sizeof(Vertex));
 
@@ -121,16 +121,16 @@ void scene_cube_draw(Scene* scene, SDL_Renderer** renderer) {
     pipeline_begin_frame(scene->pipeline);
 
     // rotation matrices for each axis
-    Mat3 rotation_matrix_z = mat3_rotation_z(scene->angle_z);
-    Mat3 rotation_matrix_y = mat3_rotation_y(scene->angle_y);
-    Mat3 rotation_matrix_x = mat3_rotation_x(scene->angle_x);
+    Mat rotation_matrix_z = mat_rotation_z(scene->angle_z, 3);
+    Mat rotation_matrix_y = mat_rotation_y(scene->angle_y, 3);
+    Mat rotation_matrix_x = mat_rotation_x(scene->angle_x, 3);
 
     // multiply all 3 rotation matrices to get a final rotation matrix
-    Mat3 rotation = multiply_matrices(rotation_matrix_x, rotation_matrix_y);
+    Mat rotation = multiply_matrices(rotation_matrix_x, rotation_matrix_y);
     rotation = multiply_matrices(rotation, rotation_matrix_z);
 
     // set pipeline vertex shader
-    memcpy(scene->pipeline->vertex_shader->rotation, &rotation, 3 * 3 * sizeof(float));
+    memcpy(&scene->pipeline->vertex_shader->rotation, &rotation, sizeof(Mat));
     scene->pipeline->vertex_shader->translation = (Vec3){0.0f, 0.0f, scene->z_offset};
 
     // render triangles

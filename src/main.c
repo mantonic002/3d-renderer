@@ -41,9 +41,9 @@ int main() {
     shark.draw = scene_point_light_per_vertex_draw;
     load_obj(&shark, "res/shark.obj");
 
-    Scene cube_per_pixel_light = make_scene_point_light_per_pixel(&renderer, "res/cat.png");
+    Scene cube_per_pixel_light = make_scene_point_light_per_pixel(&renderer, "");
     cube_per_pixel_light.draw = scene_point_light_per_pixel_draw;
-    load_obj(&cube_per_pixel_light, "res/cat.obj");
+    cube_init_triangle_list_independent_faces_w_normals(&cube_per_pixel_light);
 
     Scene sphere_specular = make_scene_point_light_per_pixel(&renderer, "");
     sphere_specular.draw = scene_point_light_per_pixel_draw;
@@ -51,9 +51,9 @@ int main() {
 
 
     Scene scenes[7] = {
+        cat,
         shark_specular,
         shark,
-        cat,
         sphere_specular,
         cube_per_pixel_light,
         cube_flat_shade,
