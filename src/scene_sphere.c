@@ -107,6 +107,7 @@ IndexedTriangleList* sphere_init_triangle_list(float radius, int latDiv, int lon
 void sphere_init_normals(Scene* scene, float radius, int latDiv, int longDiv) {
     scene->triList = sphere_init_triangle_list(radius, latDiv, longDiv);
     for (int i = 0; i < scene->triList->sizeV; i++) {
-        scene->triList->vertices[i].n = vec3_normalize(&scene->triList->vertices[i].pos);
+        Vec3 norm = vec3_normalize(&scene->triList->vertices[i].pos);
+        scene->triList->vertices[i].n = vec3_multiply(&norm, -1);
     }
 }
