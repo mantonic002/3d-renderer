@@ -4,7 +4,7 @@ void scene_point_light_per_pixel_specular_draw(Scene* scene, SDL_Renderer** rend
     // clear z buffer
     pipeline_begin_frame(scene->pipeline);
 
-    Mat proj = mat_projection_hfov(160.0f, 1.33333f, 1.0f, 10.0f);
+    Mat proj = mat_projection_hfov(120.0f, 1.0f, 1.0f, 10.0f);
 
     // rotation matrices for each axis
     Mat rotation_matrix_z = mat_rotation_z(scene->angle_z, 4);
