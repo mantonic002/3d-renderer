@@ -4,7 +4,7 @@ Vec4 vec4(const Vec3* v, int w) {
     Vec4 result = {
         v->x,
         v->y,
-        v->y,
+        v->z,
         w
     };
     return result;
@@ -14,7 +14,7 @@ Vec3 vec3(Vec4* v) {
     Vec3 result = {
         v->x,
         v->y,
-        v->y
+        v->z
     };
     return result;
 }

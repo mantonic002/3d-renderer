@@ -8,6 +8,7 @@ SDL_Color shader_effect_per_pixel_light_specular(PixelShader* ps, Vertex* vertex
 
     //  normalize interpolated normal
     Vec3 surface_norm = vec3_normalize(&vertex->n);
+    surface_norm= vec3_multiply(&surface_norm, -1.0f);
 
     // light to vertex distance and direction
     const Vec3 v_to_l = vec3_subtract(&ps->light_pos, &vertex->world_pos);
