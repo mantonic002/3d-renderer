@@ -8,5 +8,5 @@ run:
 	./renderer
 
 clean:
-	rm renderer
 	rm renderer-deb
+	rm renderer

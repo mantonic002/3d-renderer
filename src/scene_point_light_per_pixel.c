@@ -85,7 +85,7 @@ Scene make_scene_point_light_per_pixel(SDL_Renderer** renderer, const char* file
     scene.angle_y = 0;
     scene.angle_z = 0;
     scene.z_offset = 3;
-    scene.time = 0.0f,
+    scene.time = 0.0f;
     scene.lpos = (Vec3){0.0f, 0.0f, 2.5f};
     scene.pipeline = pipeline;
     scene.light_pipeline = light_pipeline;
