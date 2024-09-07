@@ -195,6 +195,33 @@ Mat mat_projection(float w, float h, float n, float f) {
     return ret;
 }
 
+Mat mat_projection_hfov(float fov, float ar, float n, float f) {
+    Mat ret = create_matrix(4);
+
+    float fov_rad = fov * PI / 180.0f;
+    float w = 1.0f / tanf(fov_rad / 2.0f);
+    float h = w * ar;
+
+    ret.data[0][0] = w;
+    ret.data[0][1] = 0.0f;
+    ret.data[0][2] = 0.0f;
+    ret.data[0][3] = 0.0f;
+    ret.data[1][0] = 0.0f;
+    ret.data[1][1] = h;
+    ret.data[1][2] = 0.0f;
+    ret.data[1][3] = 0.0f;
+    ret.data[2][0] = 0.0f;
+    ret.data[2][1] = 0.0f;
+    ret.data[2][2] = f / (f - n);
+    ret.data[2][3] = 1.0f;
+    ret.data[3][0] = 0.0f;
+    ret.data[3][1] = 0.0f;
+    ret.data[3][2] = -n * f / (f - n);
+    ret.data[3][3] = 0.0f;
+
+    return ret;
+}
+
 Vec3 multiply_matrix_by_vec3(const Mat matrix, const Vec3* point) {
     Vec3 result;
     if (matrix.size == 4) {

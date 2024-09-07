@@ -52,10 +52,10 @@ int main() {
 
     Scene scenes[3] = {
         shark_specular,
+        cube_per_pixel_light,
         sphere_specular,
         // shark,
         // cat,
-        cube_per_pixel_light,
         // cube_flat_shade,
         // wave_plane,
     };
