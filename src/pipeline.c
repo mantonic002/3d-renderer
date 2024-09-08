@@ -42,7 +42,90 @@ void assemble_triangles (Pipeline* p, const Vertex* vertices, int sizeV, const V
 
 void process_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const Vertex* v3, int triangle_index) {
     Triangle t = p->geometry_shader->shade(p->geometry_shader, v1, v2, v3, triangle_index);
-    post_process_triangle(p, &t);
+    clip_triangle(p, &t);
+}
+
+void clip_triangle (Pipeline* p, Triangle* t) {
+    // cull tests
+    if (t->v1.pos.as_vec4.x > t->v1.pos.as_vec4.w &&
+        t->v2.pos.as_vec4.x > t->v2.pos.as_vec4.w &&
+        t->v3.pos.as_vec4.x > t->v3.pos.as_vec4.w) {
+        return;
+    } else if ( t->v1.pos.as_vec4.x < -t->v1.pos.as_vec4.w &&
+                t->v2.pos.as_vec4.x < -t->v2.pos.as_vec4.w &&
+                t->v3.pos.as_vec4.x < -t->v3.pos.as_vec4.w) {
+        return;
+    } else if ( t->v1.pos.as_vec4.y > t->v1.pos.as_vec4.w &&
+                t->v2.pos.as_vec4.y > t->v2.pos.as_vec4.w &&
+                t->v3.pos.as_vec4.y > t->v3.pos.as_vec4.w) {
+        return;
+    } else if ( t->v1.pos.as_vec4.y < -t->v1.pos.as_vec4.w &&
+                t->v2.pos.as_vec4.y < -t->v2.pos.as_vec4.w &&
+                t->v3.pos.as_vec4.y < -t->v3.pos.as_vec4.w) {
+        return;
+    } else if ( t->v1.pos.as_vec4.z > t->v1.pos.as_vec4.w &&
+                t->v2.pos.as_vec4.z > t->v2.pos.as_vec4.w &&
+                t->v3.pos.as_vec4.z > t->v3.pos.as_vec4.w) {
+        return;
+    } else if ( t->v1.pos.as_vec4.z < 0.0f &&
+                t->v2.pos.as_vec4.z < 0.0f &&
+                t->v3.pos.as_vec4.z < 0.0f ) {
+        return;
+    } else {
+        // near clipping tests
+        if (t->v1.pos.as_vec4.z < 0.0f) {
+            if (t->v2.pos.as_vec4.z < 0.0f) {
+                clip2(p, t);
+            } else if (t->v3.pos.as_vec4.z < 0.0f) {
+                Triangle new_triangle = { t->v1, t->v3, t->v2 };
+                clip2(p, &new_triangle);
+            } else {
+                clip1(p, t);
+            }
+        } else if (t->v2.pos.as_vec4.z < 0.0f) {
+            if (t->v3.pos.as_vec4.z < 0.0f) {
+                Triangle new_triangle = { t->v2, t->v3, t->v1 };
+                clip2(p, &new_triangle);
+            } else {
+                clip1(p, t);
+            }
+        } else if (t->v3.pos.as_vec4.z < 0.0f) {
+            Triangle new_triangle = { t->v3, t->v1, t->v2 };
+            clip1(p, &new_triangle);
+        } else {
+            post_process_triangle(p, t);
+        }
+    }
+}
+
+// function for clipping a triangle if only one point is off the screen
+void clip1(Pipeline* p, Triangle* t) {
+    // Calculate alpha values for getting adjusted vertices
+    float alphaA = (-t->v1.pos.as_vec4.z) / (t->v2.pos.as_vec4.z - t->v1.pos.as_vec4.z);
+    float alphaB = (-t->v1.pos.as_vec4.z) / (t->v3.pos.as_vec4.z - t->v1.pos.as_vec4.z);
+    
+    Vertex v0a = vertex_interpolate(&t->v1, &t->v2, alphaA);
+    Vertex v0b = vertex_interpolate(&t->v1, &t->v3, alphaB);
+    
+    Triangle tri1 = { v0a, t->v2, t->v3 };
+    Triangle tri2 = { v0b, v0a, t->v3 };
+    post_process_triangle(p, &tri1);
+    post_process_triangle(p, &tri2);
+}
+
+// function for clipping a triangle if two points are off the screen
+void clip2(Pipeline* p, Triangle* t) {
+    // Calculate alpha values for getting adjusted vertices
+    float alpha0 = (-t->v1.pos.as_vec4.z) / (t->v3.pos.as_vec4.z - t->v1.pos.as_vec4.z);
+    float alpha1 = (-t->v2.pos.as_vec4.z) / (t->v3.pos.as_vec4.z - t->v2.pos.as_vec4.z);
+    
+    // Interpolate to get v0a and v0b
+    Vertex v0 = vertex_interpolate(&t->v1, &t->v3, alpha0);
+    Vertex v1 = vertex_interpolate(&t->v2, &t->v3, alpha1);
+    
+    // Draw triangles
+    Triangle tri = { v0, v1, t->v3 };
+    post_process_triangle(p, &tri);
 }
 
 void post_process_triangle (Pipeline* p, Triangle* triangle) {
@@ -132,8 +215,8 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
 
     // TOP part of the top-left rule
     // start and end scanlines
-    int yStart = (int)ceil( v1->pos.as_vec4.y - 0.5f);
-    int yEnd = (int)ceil( v3->pos.as_vec4.y - 0.5f); // not drawn
+    int yStart = fmax((int)ceil( v1->pos.as_vec4.y - 0.5f), 0);
+    int yEnd = fmin((int)ceil( v3->pos.as_vec4.y - 0.5f), WINDOW_HEIGHT - 1); // not drawn
 
     //interpolant prestep
     Vertex temp = vertex_multiply(dv1, ((float)yStart + 0.5f - v1->pos.as_vec4.y));
@@ -149,8 +232,8 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
     {
         // LEFT part of the top-left rule
         // calc start and end pixels
-        int xStart = (int)ceil(itEdge1.pos.as_vec4.x - 0.5f);
-        int xEnd = (int)ceil(itEdge2->pos.as_vec4.x - 0.5f); // not drawn
+        int xStart = fmax((int)ceil(itEdge1.pos.as_vec4.x - 0.5f), 0);
+        int xEnd = fmin((int)ceil(itEdge2->pos.as_vec4.x - 0.5f), WINDOW_WIDTH - 1); // not drawn
 
         // scanline interpolant startpoint
         Vertex iLine = itEdge1;
