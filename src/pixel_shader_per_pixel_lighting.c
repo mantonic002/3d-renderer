@@ -18,8 +18,10 @@ SDL_Color shader_effect_per_pixel_light(PixelShader* ps, Vertex* vertex) {
     Vec3 diffuse_x_attenuation = vec3_multiply(&ps->light_diffuse, attenuation);
 
     //normalize interpolated normal
-    Vec3 norm = vec3_normalize(&vertex->n);
-    Vec3 d = vec3_multiply(&diffuse_x_attenuation, fmax(0.0f, dot_product(&norm, &dir)));
+    Vec3 surface_norm = vec3_normalize(&vertex->n);
+    surface_norm= vec3_multiply(&surface_norm, -1.0f);
+
+    Vec3 d = vec3_multiply(&diffuse_x_attenuation, fmax(0.0f, dot_product(&surface_norm, &dir)));
 
     // add diffuse+ambient
     Vec3 temp = vec3_add(&d, &ps->light_ambient);

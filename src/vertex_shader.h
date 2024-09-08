@@ -7,8 +7,9 @@
 #include "constants.h"
 
 typedef struct VertexShader{
-    Mat rotation; //3x3 rotation matrix
-    Vec3 translation;
+    Mat world;
+    Mat proj;
+    Mat worldProj;
     float time; // for wave effect
     Vec3 light_pos;
     Vec3 light_diffuse;
@@ -17,10 +18,13 @@ typedef struct VertexShader{
     Vertex (*apply)(struct VertexShader* shader, const Vertex* in);
 } VertexShader;
 
+void bind_world(VertexShader* shader, Mat transformation);
+void bind_projection(VertexShader* shader, Mat transformation);
+
 VertexShader* create_default_vertex_shader();
 Vertex default_vertex_shader_apply(VertexShader* shader, const Vertex* in);
 
-VertexShader* create_wave_vertex_shader(const Mat rotation, const Vec3* translation, float time);
+VertexShader* create_wave_vertex_shader(float time);
 Vertex wave_vertex_shader_apply(VertexShader* shader, const Vertex* in);
 
 VertexShader* create_flat_shading_vertex_shader();

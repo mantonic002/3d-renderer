@@ -21,7 +21,7 @@ int main() {
     setup(&window, &renderer);
 
     // initialize scenes
-    Scene wave_plane = make_scene(&renderer, "res/texture.png");
+    Scene wave_plane = make_scene_plane(&renderer, "res/texture.png");
     wave_plane.draw = scene_plane_draw;
     plane_init_triangle_list_skinned(&wave_plane, 20, 3.0f);
 
@@ -29,11 +29,11 @@ int main() {
     cube_flat_shade.draw = scene_flat_shade_draw;
     cube_init_triangle_list_independent_faces_w_normals(&cube_flat_shade);
 
-    Scene cat = make_scene_point_light_per_vertex(&renderer, "res/cat.png");
-    cat.draw = scene_point_light_per_vertex_draw;
+    Scene cat = make_scene_point_light_per_pixel_specular(&renderer, "res/cat.png", 5.0f);
+    cat.draw = scene_point_light_per_pixel_specular_draw;
     load_obj(&cat, "res/cat.obj");
 
-    Scene shark_specular = make_scene_point_light_per_pixel_specular(&renderer, "", 5.0f);
+    Scene shark_specular = make_scene_point_light_per_pixel_specular(&renderer, "", 50.0f);
     shark_specular.draw = scene_point_light_per_pixel_specular_draw;
     load_obj(&shark_specular, "res/shark.obj");
 
@@ -41,21 +41,21 @@ int main() {
     shark.draw = scene_point_light_per_vertex_draw;
     load_obj(&shark, "res/shark.obj");
 
-    Scene cube_per_pixel_light = make_scene_point_light_per_pixel(&renderer, "");
-    cube_per_pixel_light.draw = scene_point_light_per_pixel_draw;
+    Scene cube_per_pixel_light = make_scene_point_light_per_pixel_specular(&renderer, "", 50.0f);
+    cube_per_pixel_light.draw = scene_point_light_per_pixel_specular_draw;
     cube_init_triangle_list_independent_faces_w_normals(&cube_per_pixel_light);
 
-    Scene sphere_specular = make_scene_point_light_per_pixel(&renderer, "");
-    sphere_specular.draw = scene_point_light_per_pixel_draw;
+    Scene sphere_specular = make_scene_point_light_per_pixel_specular(&renderer, "", 10.0f);
+    sphere_specular.draw = scene_point_light_per_pixel_specular_draw;
     sphere_init_normals(&sphere_specular, 1.0f, 16, 32);
 
 
     Scene scenes[7] = {
-        cat,
         shark_specular,
         shark,
-        sphere_specular,
+        cat,
         cube_per_pixel_light,
+        sphere_specular,
         cube_flat_shade,
         wave_plane,
     };
