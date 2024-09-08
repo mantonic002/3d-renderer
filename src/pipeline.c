@@ -273,9 +273,9 @@ void transform (Vertex* v) {
         // dividing all components of vertex by w, including texture coordinates
         *v = vertex_multiply(v, wInv);
         
-        // adjust x and y with window width and scale
-        v->pos.as_vec4.x = WINDOW_WIDTH/2 + v->pos.as_vec4.x * SCALE;
-        v->pos.as_vec4.y = WINDOW_HEIGHT/2 + v->pos.as_vec4.y * SCALE;
+        // adjust x and y with window width
+        v->pos.as_vec4.x = WINDOW_WIDTH/2 * (v->pos.as_vec4.x + 1.0f);
+        v->pos.as_vec4.y = WINDOW_HEIGHT/2 * (v->pos.as_vec4.y + 1.0f);
 
         // store wInv because everything was divided by w including w itself.
         v->pos.as_vec4.w = wInv;
