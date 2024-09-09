@@ -267,7 +267,7 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
 
 // transformation from object space to screen space
 void transform (Vertex* v) {   
-        // perform homo -> ndc on xyz / perspective-correct interpolative divide on all other attributes
+        // perspective-correct interpolative divide on all other attributes
         float wInv = 1.0f / v->pos.as_vec4.w;
 
         // dividing all components of vertex by w, including texture coordinates

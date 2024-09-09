@@ -37,4 +37,8 @@ This repository contains a simple renderer written in C using SDL2 library for v
 - **GCC Compiler:** You'll need a compiler to turn the code into a working program.
 - **SDL2 Library:** To see the visual representation, you'll need the SDL2 library.
 
+  - Install on Debian/Ubuntu: `sudo apt install libsdl2-dev`
+  
+- **SDL2 Image:** For loading iamge files to use as textures.
 
+  - Install on Debian/Ubuntu: `sudo apt install libsdl2-image-dev`

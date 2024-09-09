@@ -21,7 +21,7 @@ int main() {
     setup(&window, &renderer);
 
     // initialize scenes
-    Scene wave_plane = make_scene_plane(&renderer, "res/texture.png");
+    Scene wave_plane = make_scene_plane(&renderer, "res/carpet.jpg");
     wave_plane.draw = scene_plane_draw;
     plane_init_triangle_list_skinned(&wave_plane, 20, 3.0f);
 

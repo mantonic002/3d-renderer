@@ -12,7 +12,7 @@ typedef union {
 
 typedef struct Vertex
 {
-    VecUnion pos; // position as both Vec3 and Vec4
+    VecUnion pos; // position as Vec3 or Vec4
     Vec2 tc; // texture coordinate
     Vec3 col;
     Vec3 n; // normal

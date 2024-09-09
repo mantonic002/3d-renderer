@@ -17,7 +17,6 @@ void ptr_swap(void* p1, void* p2, size_t size) {
 Uint32 get_pixel(SDL_Surface* surface, int x, int y) {
     // check if coordinates are within the bounds of the surface
     if (x < 0 || x >= surface->w || y < 0 || y >= surface->h) {
-        printf("Pixel out of bounds (%d, %d)", x, y);
         return 0; 
     }
 

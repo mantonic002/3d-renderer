@@ -233,7 +233,7 @@ Vec3 multiply_matrix_by_vec3(const Mat matrix, const Vec3* point) {
         result.y = (point->x * matrix.data[0][1]) + (point->y * matrix.data[1][1]) + (point->z * matrix.data[2][1]);
         result.z = (point->x * matrix.data[0][2]) + (point->y * matrix.data[1][2]) + (point->z * matrix.data[2][2]);
     } else {
-        printf("Memory allocation failed for Pipeline\n");
+        printf("Invalid matrix size\n");
         exit(1);
     }
 

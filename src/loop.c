@@ -106,6 +106,7 @@ int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size,
         scenes[*curr_scene].angle_y = 0;
     if (scenes[*curr_scene].angle_z >= 2*PI)
         scenes[*curr_scene].angle_z = 0;
+        
     return true;
 }
 
