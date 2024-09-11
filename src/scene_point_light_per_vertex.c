@@ -5,7 +5,8 @@ void scene_point_light_per_vertex_draw(Scene* scene, SDL_Renderer** renderer) {
     pipeline_begin_frame(scene->pipeline);
 
     Mat proj = mat_projection_hfov(scene->hfov, scene->aspect_ratio, 1.0f, 10.0f);
-    Mat view = mat_translation(-scene->cam_pos.x, -scene->cam_pos.y, -scene->cam_pos.z);
+    Mat view_no_rot = mat_translation(-scene->cam_pos.x, -scene->cam_pos.y, -scene->cam_pos.z);
+    Mat view = multiply_matrices(view_no_rot, scene->cam_rot);
 
     // rotation matrices for each axis
     Mat rotation_matrix_z = mat_rotation_z(scene->angle_z, 4);
@@ -24,7 +25,7 @@ void scene_point_light_per_vertex_draw(Scene* scene, SDL_Renderer** renderer) {
     bind_projection(scene->pipeline->vertex_shader, proj);
 
     // set light position for per pixel shading
-    scene->pipeline->vertex_shader->light_pos = scene->lpos;
+    scene->pipeline->vertex_shader->light_pos = multiply_matrix_by_vec3(view, &scene->lpos);
     
     // render triangles
     pipeline_draw(scene->pipeline, scene->triList);
@@ -95,8 +96,9 @@ Scene make_scene_point_light_per_vertex(SDL_Renderer** renderer, const char* fil
 
     scene.htrack = scene.hfov / WINDOW_WIDTH;
     scene.vtrack = scene.vfov / WINDOW_HEIGHT;
-    scene.cam_speed = 1.0f;
+    scene.cam_speed = 0.1f;
     scene.cam_pos = (Vec3){0.0f, 0.0f, 0.0f};
+    scene.cam_rot = mat_identity(4);
 
     scene.mod_pos = (Vec3){0.0f, 0.0f, 3.0f};
     scene.angle_x = 0;

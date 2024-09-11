@@ -299,3 +299,16 @@ Mat multiply_matrices(const Mat matrixA, const Mat matrixB) {
 
     return result;
 }
+
+Mat mat_transposition(const Mat mat) {
+    int size = mat.size;
+    Mat xp = create_matrix(size);
+
+    for (int j = 0; j < size; ++j) {
+        for (int k = 0; k < size; ++k) {
+            xp.data[j][k] = mat.data[k][j];
+        }
+    }
+
+    return xp;
+}

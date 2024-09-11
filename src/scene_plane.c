@@ -97,8 +97,9 @@ void scene_plane_draw(Scene* scene, SDL_Renderer** renderer) {
     pipeline_begin_frame(scene->pipeline);
 
     Mat proj = mat_projection_hfov(scene->hfov, scene->aspect_ratio, 1.0f, 10.0f);
-    Mat view = mat_translation(-scene->cam_pos.x, -scene->cam_pos.y, -scene->cam_pos.z);
-
+    Mat view_no_rot = mat_translation(-scene->cam_pos.x, -scene->cam_pos.y, -scene->cam_pos.z);
+    Mat view = multiply_matrices(view_no_rot, scene->cam_rot);
+    
     // rotation matrices for each axis
     Mat rotation_matrix_z = mat_rotation_z(scene->angle_z, 4);
     Mat rotation_matrix_y = mat_rotation_y(scene->angle_y, 4);
@@ -155,8 +156,9 @@ Scene make_scene_plane(SDL_Renderer** renderer, const char* filename) {
 
     scene.htrack = scene.hfov / WINDOW_WIDTH;
     scene.vtrack = scene.vfov / WINDOW_HEIGHT;
-    scene.cam_speed = 1.0f;
+    scene.cam_speed = 0.1f;
     scene.cam_pos = (Vec3){0.0f, 0.0f, 0.0f};
+    scene.cam_rot = mat_identity(4);
 
     scene.mod_pos = (Vec3){0.0f, 0.0f, 3.0f};
     scene.angle_x = 0;

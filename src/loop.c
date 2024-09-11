@@ -41,15 +41,17 @@ void setup(SDL_Window** window, SDL_Renderer** renderer) {
 
 }
 
-int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size, int* curr_scene) {
+int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size, int* curr_scene, float* last_x, float* last_y) {
     SDL_Event event;
+    int mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    static bool mouse_clicked = false;
 
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_QUIT:
             return false;
             break;
-
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE)
                 return false;
@@ -62,6 +64,33 @@ int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size,
 
         case SDL_KEYUP:
             keys[event.key.keysym.scancode] = false;
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+            mouse_clicked = true;
+            *last_x = mouse_x;
+            *last_y = mouse_y;
+            break;        
+        case SDL_MOUSEBUTTONUP:
+            mouse_clicked = false;
+            break;
+
+        case SDL_MOUSEMOTION:
+            if (mouse_clicked) {
+                float xoffset = mouse_x - *last_x;
+                float yoffset = *last_y - mouse_y;
+                *last_x = mouse_x;
+                *last_y = mouse_y;
+
+                float sensitivity = 0.05f;
+                xoffset *= sensitivity;
+                yoffset *= sensitivity;
+
+                Mat cam_rot = multiply_matrices(mat_rotation_y(xoffset * scenes[*curr_scene].htrack, 4),
+                                                mat_rotation_x(yoffset * scenes[*curr_scene].vtrack, 4));
+
+                scenes[*curr_scene].cam_rot = multiply_matrices(scenes[*curr_scene].cam_rot, cam_rot);
+            }
             break;
 
         default:
@@ -78,14 +107,33 @@ int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size,
         scenes[*curr_scene].angle_z += 0.02f;
 
     // move the camera with arrow keys
-    if (keys[SDL_SCANCODE_UP])
-        scenes[*curr_scene].cam_pos.z += 0.1f;
-    if (keys[SDL_SCANCODE_DOWN])
-        scenes[*curr_scene].cam_pos.z -= 0.1f;
-    if (keys[SDL_SCANCODE_LEFT])
-        scenes[*curr_scene].cam_pos.x -= 0.1f;
-    if (keys[SDL_SCANCODE_RIGHT])
-        scenes[*curr_scene].cam_pos.x += 0.1f;
+    if (keys[SDL_SCANCODE_UP]) {
+        Vec3 temp = (Vec3){0.0f, 0.0f, 1.0f};
+        temp = multiply_matrix_by_vec3(mat_transposition(scenes[*curr_scene].cam_rot), &temp);
+        temp = vec3_multiply(&temp, scenes[*curr_scene].cam_speed);
+        scenes[*curr_scene].cam_pos = vec3_add(&scenes[*curr_scene].cam_pos, &temp);
+    }
+
+    if (keys[SDL_SCANCODE_DOWN]) {
+        Vec3 temp = (Vec3){0.0f, 0.0f, -1.0f};
+        temp = multiply_matrix_by_vec3(mat_transposition(scenes[*curr_scene].cam_rot), &temp);
+        temp = vec3_multiply(&temp, scenes[*curr_scene].cam_speed);
+        scenes[*curr_scene].cam_pos = vec3_add(&scenes[*curr_scene].cam_pos, &temp);
+    }
+
+    if (keys[SDL_SCANCODE_LEFT]) {
+        Vec3 temp = (Vec3){-1.0f, 0.0f, 0.0f};
+        temp = multiply_matrix_by_vec3(mat_transposition(scenes[*curr_scene].cam_rot), &temp);
+        temp = vec3_multiply(&temp, scenes[*curr_scene].cam_speed);
+        scenes[*curr_scene].cam_pos = vec3_add(&scenes[*curr_scene].cam_pos, &temp);
+    }
+
+    if (keys[SDL_SCANCODE_RIGHT]) {
+        Vec3 temp = (Vec3){1.0f, 0.0f, 0.0f};
+        temp = multiply_matrix_by_vec3(mat_transposition(scenes[*curr_scene].cam_rot), &temp);
+        temp = vec3_multiply(&temp, scenes[*curr_scene].cam_speed);
+        scenes[*curr_scene].cam_pos = vec3_add(&scenes[*curr_scene].cam_pos, &temp);
+    }
 
 
     // update light position

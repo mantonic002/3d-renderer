@@ -27,6 +27,7 @@ typedef struct Scene {
     float vtrack;
     float cam_speed;
     Vec3 cam_pos;
+    Mat cam_rot;
     // variables for model
     Vec3 mod_pos;
     float angle_x;

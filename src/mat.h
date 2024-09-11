@@ -25,5 +25,6 @@ Mat mat_projection_hfov(float fov, float ar, float n, float f);
 Vec3 multiply_matrix_by_vec3(const Mat matrix, const Vec3* point);
 Vec4 multiply_matrix_by_vec4(const Mat matrix, const Vec4* point);
 Mat multiply_matrices(const Mat matrixA, const Mat matrixB);
+Mat mat_transposition(const Mat mat);
 
 #endif

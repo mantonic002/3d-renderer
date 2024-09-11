@@ -37,8 +37,9 @@ Scene make_scene(SDL_Renderer** renderer, const char* filename) {
 
     scene.htrack = scene.hfov / WINDOW_WIDTH;
     scene.vtrack = scene.vfov / WINDOW_HEIGHT;
-    scene.cam_speed = 1.0f;
+    scene.cam_speed = 0.1f;
     scene.cam_pos = (Vec3){0.0f, 0.0f, 0.0f};
+    scene.cam_rot = mat_identity(4);
 
     scene.mod_pos = (Vec3){0.0f, 0.0f, 3.0f};
     scene.angle_x = 0;

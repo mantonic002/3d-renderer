@@ -35,7 +35,7 @@ Vertex flat_shading_vertex_shader_apply(VertexShader* shader, const Vertex* in) 
     vertexOut.n = multiply_matrix_by_vec3(shader->world_view, &in->n);
     vertexOut.col = temp;
 
-    Vec4 world_pos = multiply_matrix_by_vec4(shader->world, &pos_v4);
+    Vec4 world_pos = multiply_matrix_by_vec4(shader->world_view, &pos_v4);
     vertexOut.world_pos = vec3(&world_pos);
 
     return vertexOut;
