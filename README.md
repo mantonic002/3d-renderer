@@ -10,21 +10,22 @@ This repository contains a simple renderer written in C using SDL2 library for v
   
 - In scenes with point light, light can be moved around by pressing ```W```, ```A```, ```S``` and ```D```.
 
-- Objects can be moved further away or closer by pressing &#8593; or &#8595;
+- Camera can be moved by pressing &#8592;, &#8593;, &#8594; or &#8595;
+
+- Camera can be rotated by holding ```LEFT CLICK``` and moving the mouse around;
 
 - Scenes can be changed by pressing ```TAB```.
   
-- Currently there are 8 scenes:
-  - Shark with point light that can be moved around
+- Currently there are 7 scenes:
+  - Shark with point light (per pixel) that can be rotated around
+  - Shark with point light (per vertex) that can be rotated around
   - Cat with textures and a point light that can be moved around  
-  - Sphere with flat shading
+  - Cube with point light (per pixel)
+  - Sphere with point light (per pixel)
   - Cube with flat shading
-  - Wavy plane
-  - Two skinned cubes rotating in oposite directions where one can be moved (demonstrating Z-buffering)
-  - Cube with same texture on 4 sides
-  - Skinned cube with texture wrapped around the cube
+  - Textured wavy plane
     
-[Screencast from 2024-09-04 18-02-43.webm](https://github.com/user-attachments/assets/19ef7bdf-1cfd-4c97-9978-1b538ce70e21)
+[Screencast from 2024-09-12 00-58-54.webm](https://github.com/user-attachments/assets/e8881996-87de-4f34-99a3-1e1733183036)
 
 ### How to Use
 
