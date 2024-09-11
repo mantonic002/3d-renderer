@@ -19,7 +19,7 @@ Vertex point_light_vertex_shader_apply(VertexShader* shader, const Vertex* in) {
 
     // calculate position based on rotation and translation
     Vec4 pos_v4 = vec4(&in->pos.as_vec3, 1.0f);
-    Vec4 pos_v4_proj = multiply_matrix_by_vec4(shader->worldProj, &pos_v4);
+    Vec4 pos_v4_proj = multiply_matrix_by_vec4(shader->world_view_proj, &pos_v4);
 
     Vec3 pos = vec3(&pos_v4_proj);
 

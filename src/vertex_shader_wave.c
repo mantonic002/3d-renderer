@@ -16,17 +16,17 @@ VertexShader* create_wave_vertex_shader(float time) {
 
 Vertex wave_vertex_shader_apply(VertexShader* shader, const Vertex* in) {    
     Vec4 pos_v4 = vec4(&in->pos.as_vec3, 1.0f);
-    pos_v4.y += amplitude * sin( shader->time * freqScroll + pos_v4.x * freqWave );
 
-    Vec4 pos_v4_proj = multiply_matrix_by_vec4(shader->worldProj, &pos_v4);
+    Vec4 pos_v4_proj = multiply_matrix_by_vec4(shader->world_view_proj, &pos_v4);
+    pos_v4_proj.y += amplitude * sin( shader->time * freqScroll + pos_v4_proj.x * freqWave );
 
-    Vec4 world_pos = multiply_matrix_by_vec4(shader->world, &pos_v4);
-    
     Vertex vertexOut;
     vertexOut.pos.as_vec4 = pos_v4_proj;
     vertexOut.tc = in->tc;
-    vertexOut.n = multiply_matrix_by_vec3(shader->world, &in->n);
+    vertexOut.n = multiply_matrix_by_vec3(shader->world_view, &in->n);
     vertexOut.col = in->col;
+
+    Vec4 world_pos = multiply_matrix_by_vec4(shader->world_view, &pos_v4);
     vertexOut.world_pos = vec3(&world_pos);
 
     return vertexOut;

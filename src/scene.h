@@ -16,14 +16,27 @@
 typedef struct Scene {
     IndexedTriangleList* triList;
     IndexedTriangleList* light_sphere;
+    Pipeline* pipeline;
+    Pipeline* light_pipeline;
+    // fov
+    float aspect_ratio;
+    float hfov;
+    float vfov;
+    // variables for camera
+    float htrack;
+    float vtrack;
+    float cam_speed;
+    Vec3 cam_pos;
+    Mat cam_rot;
+    // variables for model
+    Vec3 mod_pos;
     float angle_x;
     float angle_y;
     float angle_z;
-    float z_offset;
+    // variables for light
     Vec3 lpos;
+
     float time;
-    Pipeline* pipeline;
-    Pipeline* light_pipeline;
     void (*draw)(struct Scene* scene, SDL_Renderer** renderer);
 
 } Scene;

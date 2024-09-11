@@ -1,18 +1,38 @@
 #include "mat.h"
 
 Mat create_matrix(int size) {
+    if (size <= 0) {
+        fprintf(stderr, "Invalid matrix size: %d\n", size);
+        exit(1);
+    }
+
     Mat mat;
     mat.size = size;
     mat.data = malloc(size * sizeof(float*));
 
+    if (mat.data == NULL) {
+        fprintf(stderr, "Memory allocation failed for matrix data\n");
+        exit(1);
+    }
+
     for (int i = 0; i < size; ++i) {
         mat.data[i] = malloc(size * sizeof(float));
+
+        if (mat.data[i] == NULL) {
+            fprintf(stderr, "Memory allocation failed for matrix row\n");
+            exit(1);
+        }
     }
 
     return mat;
 }
 
+
 Mat mat_identity(int size) {
+    if (size != 3 && size != 4) {
+        fprintf(stderr, "Invalid matrix size for rotation: %d\n", size);
+        exit(1);
+    }
     Mat ret = create_matrix(size);
     
     ret.data[0][0] = 1;
@@ -39,6 +59,10 @@ Mat mat_identity(int size) {
 }
 
 Mat mat_scaling(float factor, int size) {
+    if (size != 3 && size != 4) {
+        fprintf(stderr, "Invalid matrix size for rotation: %d\n", size);
+        exit(1);
+    }
     Mat ret = create_matrix(size);
     
     ret.data[0][0] = factor;
@@ -65,6 +89,10 @@ Mat mat_scaling(float factor, int size) {
 }
 
 Mat mat_rotation_x(float angle, int size) {
+    if (size != 3 && size != 4) {
+        fprintf(stderr, "Invalid matrix size for rotation: %d\n", size);
+        exit(1);
+    }
     Mat ret = create_matrix(size);
     float cos_angle = cosf(angle);
     float sin_angle = sinf(angle);
@@ -93,6 +121,10 @@ Mat mat_rotation_x(float angle, int size) {
 }
 
 Mat mat_rotation_y(float angle, int size) {
+    if (size != 3 && size != 4) {
+        fprintf(stderr, "Invalid matrix size for rotation: %d\n", size);
+        exit(1);
+    }
     Mat ret = create_matrix(size);
     float cos_angle = cosf(angle);
     float sin_angle = sinf(angle);
@@ -121,6 +153,10 @@ Mat mat_rotation_y(float angle, int size) {
 }
 
 Mat mat_rotation_z(float angle, int size) {
+    if (size != 3 && size != 4) {
+        fprintf(stderr, "Invalid matrix size for rotation: %d\n", size);
+        exit(1);
+    }
     Mat ret = create_matrix(size);
     float cos_angle = cosf(angle);
     float sin_angle = sinf(angle);
@@ -262,4 +298,17 @@ Mat multiply_matrices(const Mat matrixA, const Mat matrixB) {
     }
 
     return result;
+}
+
+Mat mat_transposition(const Mat mat) {
+    int size = mat.size;
+    Mat xp = create_matrix(size);
+
+    for (int j = 0; j < size; ++j) {
+        for (int k = 0; k < size; ++k) {
+            xp.data[j][k] = mat.data[k][j];
+        }
+    }
+
+    return xp;
 }

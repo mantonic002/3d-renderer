@@ -12,7 +12,7 @@
 
 int initialize_window(SDL_Window** window, SDL_Renderer** renderer);
 void setup(SDL_Window** window, SDL_Renderer** renderer);
-int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size, int* curr_scene);
+int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size, int* curr_scene, float* last_x, float* last_y);
 void update(int *last_frame_time, float *delta_time);
 void render(SDL_Renderer** renderer, Scene* scene);
 void destroy_window(SDL_Window** window, SDL_Renderer** renderer);

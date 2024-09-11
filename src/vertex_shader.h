@@ -8,8 +8,10 @@
 
 typedef struct VertexShader{
     Mat world;
+    Mat view;
     Mat proj;
-    Mat worldProj;
+    Mat world_view;
+    Mat world_view_proj;
     float time; // for wave effect
     Vec3 light_pos;
     Vec3 light_diffuse;
@@ -19,6 +21,8 @@ typedef struct VertexShader{
 } VertexShader;
 
 void bind_world(VertexShader* shader, Mat transformation);
+void bind_world_view(VertexShader* shader, Mat transformation);
+void bind_view(VertexShader* shader, Mat transformation);
 void bind_projection(VertexShader* shader, Mat transformation);
 
 VertexShader* create_default_vertex_shader();
