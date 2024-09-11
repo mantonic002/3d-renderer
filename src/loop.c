@@ -77,16 +77,16 @@ int process_input(bool* keys, float* delta_time, Scene* scenes, int scenes_size,
     if (keys[SDL_SCANCODE_C])
         scenes[*curr_scene].angle_z += 0.02f;
 
-    // move the cube closer or further away with arrow keys
-    if (keys[SDL_SCANCODE_UP] && scenes[*curr_scene].z_offset >= 2 && scenes[*curr_scene].z_offset < 19.9f)
-    {
-        scenes[*curr_scene].z_offset += 0.1f;
-    }
+    // move the camera with arrow keys
+    if (keys[SDL_SCANCODE_UP])
+        scenes[*curr_scene].cam_pos.z += 0.1f;
+    if (keys[SDL_SCANCODE_DOWN])
+        scenes[*curr_scene].cam_pos.z -= 0.1f;
+    if (keys[SDL_SCANCODE_LEFT])
+        scenes[*curr_scene].cam_pos.x -= 0.1f;
+    if (keys[SDL_SCANCODE_RIGHT])
+        scenes[*curr_scene].cam_pos.x += 0.1f;
 
-    if (keys[SDL_SCANCODE_DOWN] && scenes[*curr_scene].z_offset > 2.1f && scenes[*curr_scene].z_offset <= 20)
-    {
-        scenes[*curr_scene].z_offset -= 0.1f;
-    }
 
     // update light position
     if (keys[SDL_SCANCODE_W])

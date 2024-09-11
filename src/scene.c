@@ -31,10 +31,21 @@ Scene make_scene(SDL_Renderer** renderer, const char* filename) {
     pipeline->zb = z_buffer_init(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     Scene scene;
+    scene.aspect_ratio = 1.3333f;
+    scene.hfov = 100.0f;
+    scene.vfov = scene.hfov / scene.aspect_ratio;
+
+    scene.htrack = scene.hfov / WINDOW_WIDTH;
+    scene.vtrack = scene.vfov / WINDOW_HEIGHT;
+    scene.cam_speed = 1.0f;
+    scene.cam_pos = (Vec3){0.0f, 0.0f, 0.0f};
+
+    scene.mod_pos = (Vec3){0.0f, 0.0f, 3.0f};
     scene.angle_x = 0;
     scene.angle_y = 0;
     scene.angle_z = 0;
-    scene.z_offset = 3;
+
+    scene.lpos = (Vec3){0.0f, 0.0f, 2.0f};
     scene.time = 0.0f;
     scene.pipeline = pipeline;
 
