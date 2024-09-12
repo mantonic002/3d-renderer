@@ -69,9 +69,13 @@ int main() {
         if (!process_input(keys, &delta_time, scenes, 7, &curr_scene, &mouse_x, &mouse_y)) game_is_running = false;
         update(&last_frame_time, &delta_time);
         render(&renderer, &scenes[curr_scene]);
+
+
+
     }
 
     destroy_window(&window, &renderer);
 
     return 0;
 }
+

@@ -1,7 +1,7 @@
 #include "scene.h"
 
 void scene_point_light_per_pixel_specular_draw(Scene* scene, SDL_Renderer** renderer) {
-    // clear z buffer
+    // clear z buffer and frame buffer
     pipeline_begin_frame(scene->pipeline);
 
     Mat proj = mat_projection_hfov(scene->hfov, scene->aspect_ratio, 1.0f, 10.0f);
@@ -37,6 +37,10 @@ void scene_point_light_per_pixel_specular_draw(Scene* scene, SDL_Renderer** rend
 
     // render light sphere
     pipeline_draw(scene->light_pipeline, scene->light_sphere);
+
+    // draw contents of frame_buffer
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(*renderer, scene->frame_buffer);
+    SDL_RenderCopy(*renderer, texture, NULL, NULL);
 }
 
 Scene make_scene_point_light_per_pixel_specular(SDL_Renderer** renderer, const char* filename, float specular_power) {
@@ -102,6 +106,20 @@ Scene make_scene_point_light_per_pixel_specular(SDL_Renderer** renderer, const c
 
     scene.lpos = (Vec3){0.0f, 0.0f, 2.0f};
     scene.time = 0.0f;
+
+    scene.frame_buffer = SDL_CreateRGBSurface(
+        0,      
+        WINDOW_WIDTH,          
+        WINDOW_HEIGHT,              
+        32,         // Bits per pixel
+        0x00FF0000, // Red mask
+        0x0000FF00, // Green mask
+        0x000000FF, // Blue mask
+        0xFF000000  // Alpha mask
+    );
+    pipeline->frame_buffer = scene.frame_buffer;
+    light_pipeline->frame_buffer = scene.frame_buffer;
+
     scene.pipeline = pipeline;
     scene.light_pipeline = light_pipeline;
 

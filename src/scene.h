@@ -18,6 +18,7 @@ typedef struct Scene {
     IndexedTriangleList* light_sphere;
     Pipeline* pipeline;
     Pipeline* light_pipeline;
+    SDL_Surface* frame_buffer;
     // fov
     float aspect_ratio;
     float hfov;

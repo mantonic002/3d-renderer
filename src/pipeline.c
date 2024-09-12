@@ -5,6 +5,7 @@ void pipeline_draw(Pipeline* p, IndexedTriangleList* triList) {
 }
 
 void pipeline_begin_frame(Pipeline* p) {
+    clear_surface(p->frame_buffer);
     z_buffer_clear(p->zb);
 }
 
@@ -258,8 +259,7 @@ void draw_flat_triangle (Pipeline* p, const Vertex* v1, const Vertex* v2, const 
                 // texture lookup and clamp with pixel shader and returned draw pixel
                 c = p->pixel_shader->shade(p->pixel_shader, &attr);
 
-                SDL_SetRenderDrawColor(*p->renderer, c.r, c.g, c.b, c.a);
-                SDL_RenderDrawPoint(*p->renderer, x, y);
+                put_pixel(p->frame_buffer, x, y, &c);
             }
         }
     }

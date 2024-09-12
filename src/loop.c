@@ -173,6 +173,11 @@ void update(int *last_frame_time, float *delta_time) {
 
 }
 
+void draw_surface(SDL_Surface* surface, SDL_Renderer** renderer) {
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(*renderer, surface);
+    SDL_RenderCopy(*renderer, texture, NULL, NULL);
+}
+
 void render(SDL_Renderer** renderer, Scene* scene) {
     SDL_SetRenderDrawColor(*renderer, 0, 0, 0, 255);
     SDL_RenderClear(*renderer);
@@ -181,6 +186,8 @@ void render(SDL_Renderer** renderer, Scene* scene) {
 
     scene->draw(scene, renderer);
 
+    // SDL_Surface* surface = IMG_Load("res/cat.png");
+    // draw_surface(surface, renderer);
     SDL_RenderPresent(*renderer);
 }
 

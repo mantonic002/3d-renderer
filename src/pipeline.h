@@ -18,6 +18,7 @@ typedef struct Pipeline {
     PixelShader* pixel_shader;
     SDL_Renderer** renderer;
     ZBuffer* zb;
+    SDL_Surface* frame_buffer;
 } Pipeline;
 
 void pipeline_draw(Pipeline* p, IndexedTriangleList* triList);
