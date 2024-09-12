@@ -26,6 +26,10 @@ void scene_flat_shade_draw(Scene* scene, SDL_Renderer** renderer) {
 
     // render triangles
     pipeline_draw(scene->pipeline, scene->triList);
+
+    // draw contents of frame_buffer
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(*renderer, scene->frame_buffer);
+    SDL_RenderCopy(*renderer, texture, NULL, NULL);
 }
 
 Scene make_scene_flat_shade(SDL_Renderer** renderer) {
@@ -76,6 +80,19 @@ Scene make_scene_flat_shade(SDL_Renderer** renderer) {
 
     scene.lpos = (Vec3){0.0f, 0.0f, 2.0f};
     scene.time = 0.0f;
+
+    scene.frame_buffer = SDL_CreateRGBSurface(
+        0,      
+        WINDOW_WIDTH,          
+        WINDOW_HEIGHT,              
+        32,         // Bits per pixel
+        0x00FF0000, // Red mask
+        0x0000FF00, // Green mask
+        0x000000FF, // Blue mask
+        0xFF000000  // Alpha mask
+    );
+    pipeline->frame_buffer = scene.frame_buffer;
+
     scene.pipeline = pipeline;
     
     return scene;
